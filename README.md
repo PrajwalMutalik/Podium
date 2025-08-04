@@ -1,4 +1,4 @@
-# Podium Client
+# Podium Client.
 
 Podium is an AI-powered interview coaching platform designed to help students and professionals prepare for job interviews. The client is a React web application that interacts with the Podium backend to deliver a seamless interview practice experience.
 
