@@ -1,3 +1,6 @@
+/* This animation provides a smooth fade-in and slide-up effect 
+  for components as they mount.
+*/
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -10,5 +13,6 @@
 }
 
 .fade-in-up {
+  /* Apply the animation */
   animation: fadeInUp 0.5s ease-in-out forwards;
 }
