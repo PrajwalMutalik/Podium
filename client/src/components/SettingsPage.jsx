@@ -22,7 +22,7 @@ const SettingsPage = () => {
         <div className="form-group">
           <label htmlFor="apiKey">Your Google Gemini API Key:</label>
           <input
-            type="password" 
+            type="password" // Use password type to obscure the key
             id="apiKey"
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}

@@ -37,7 +37,7 @@
 
 .actions-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
 }
 
@@ -46,11 +46,13 @@
   text-align: center;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(112, 128, 144, 0.2);
 }
 
 .action-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 20px rgba(112, 128, 144, 0.2);
+  border-color: rgba(112, 128, 144, 0.4);
 }
 
 .action-card h2 {

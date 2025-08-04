@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Spinner from './Spinner';
-import './Dashboard.css'; 
+import './Dashboard.css'; // We will create this CSS file
 
 const Dashboard = () => {
   const [stats, setStats] = useState({

@@ -12,6 +12,7 @@ import HistoryPage from './components/HistoryPage';
 import AboutPage from './components/AboutPage';
 import ContactPage from './components/ContactPage';
 import SettingsPage from './components/SettingsPage';
+import ThemeSwitch from './components/ThemeSwitch';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Navbar />
       <main className="container">
         <Routes>
+          {/* Each page is now wrapped with AnimatedPage */}
           <Route path="/" element={<AnimatedPage><WelcomePage /></AnimatedPage>} />
           <Route path="/register" element={<AnimatedPage><Register /></AnimatedPage>} />
           <Route path="/login" element={<AnimatedPage><Login /></AnimatedPage>} />
@@ -36,12 +38,50 @@ function App() {
     </div>
   );
 }
+
+// --- HELPER COMPONENTS ---
+// These must be included in the file to avoid errors.
+
 const Logo = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2Z" stroke="#58a6ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M9 10V14" stroke="#e6edf3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M12 8V16" stroke="#e6edf3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M15 11V13" stroke="#e6edf3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path 
+      d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2Z" 
+      stroke="var(--accent-color)" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      fill="rgba(160, 82, 45, 0.1)"
+    />
+    <path 
+      d="M9 10V14" 
+      stroke="var(--accent-color)" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    />
+    <path 
+      d="M12 8V16" 
+      stroke="var(--accent-color)" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    />
+    <path 
+      d="M15 11V13" 
+      stroke="var(--accent-color)" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    />
+    <circle 
+      cx="12" 
+      cy="12" 
+      r="9" 
+      fill="none"
+      stroke="rgba(160, 82, 45, 0.3)" 
+      strokeWidth="0.5"
+      strokeDasharray="2 2"
+    />
   </svg>
 );
 
@@ -56,10 +96,13 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <Link to={isAuthenticated ? "/dashboard" : "/"} className="logo-link">
-        <Logo />
-        <span>Podium</span>
-      </Link>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <Link to={isAuthenticated ? "/dashboard" : "/"} className="logo-link">
+          <Logo />
+          <span>Podium</span>
+        </Link>
+        <ThemeSwitch />
+      </div>
       <div className="nav-link-group">
         {isAuthenticated ? (
           <>

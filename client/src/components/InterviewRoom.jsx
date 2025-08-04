@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; 
+import { useAuth } from '../context/AuthContext'; // Import useAuth
 import AnalysisReport from './AnalysisReport';
 import Spinner from './Spinner';
 import AudioVisualizer from './AudioVisualizer';
 
 const InterviewRoom = () => {
-  const { userApiKey } = useAuth(); 
+  const { userApiKey } = useAuth(); // Get the user's API key from context
   const location = useLocation();
   const navigate = useNavigate();
   const [question, setQuestion] = useState(null);
@@ -18,6 +18,7 @@ const InterviewRoom = () => {
   const mediaRecorder = useRef(null);
   const audioChunks = useRef([]);
 
+  // This function fetches the question from the backend
   const fetchQuestion = useCallback(async () => {
     const params = new URLSearchParams(location.search);
     const role = params.get('role');
@@ -36,9 +37,10 @@ const InterviewRoom = () => {
     }
   }, [location.search]);
 
+  // This effect runs once when the component loads to get the first question
   useEffect(() => {
     fetchQuestion();
-  }, [fetchQuestion]); 
+  }, [fetchQuestion]); // It will refetch if the user changes filters via the URL
 
   const startRecording = async () => {
     setAnalysis(null);
@@ -77,6 +79,7 @@ const InterviewRoom = () => {
     if (question) {
       formData.append('questionText', question.text);
     }
+    // NEW: Add the user's API key to the form data if it exists
     if (userApiKey) {
       formData.append('geminiApiKey', userApiKey);
     }
@@ -103,6 +106,7 @@ const InterviewRoom = () => {
     fetchQuestion();
   };
 
+  // This is the main render logic for the component
   const renderContent = () => {
     if (analysis) {
       return <AnalysisReport analysis={analysis} onNext={handleNextQuestion} />;
