@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HistoryPage.css';
+import './DailyQuotaPopup.css';
+import { useQuota } from '../context/QuotaContext';
 
-// Data structure for roles and their categories
 const rolesAndCategories = {
   'SDE': [
-    'All', 'Data Structures & Algorithms', 'OOP', 'DBMS', 
-    'Operating Systems', 'Computer Networks', 'System Design', 
+    'All', 'Data Structures & Algorithms', 'OOP', 'DBMS',
+    'Operating Systems', 'Computer Networks', 'System Design',
     'Frontend', 'Backend', 'Cloud', 'Behavioral'
   ],
   'Frontend Developer': ['All', 'HTML/CSS', 'JavaScript', 'React', 'Behavioral'],
@@ -20,34 +21,66 @@ const SessionSetup = () => {
   const [categoriesForRole, setCategoriesForRole] = useState(rolesAndCategories['SDE']);
   const [isPracticeExpanded, setIsPracticeExpanded] = useState(false);
   const [isResourceCardExpanded, setIsResourceCardExpanded] = useState(false);
+  const { showQuotaPopup } = useQuota();
   const navigate = useNavigate();
 
-  // Update categories when the role changes
   useEffect(() => {
     setCategoriesForRole(rolesAndCategories[role]);
-    setCategory('All'); // Reset category to 'All' when role changes
+    setCategory('All');
   }, [role]);
 
-  const handleSubmit = (e) => {
+  // This is the corrected API call handler.
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate(`/interview-room?role=${role}&category=${encodeURIComponent(category)}`);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        // If there's no token, the user isn't logged in.
+        // You might want to navigate them to the login page.
+        navigate('/login');
+        return;
+      }
+
+      const res = await fetch('/api/interview/check-quota', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token, // Ensure the token is sent
+        },
+      });
+
+      if (!res.ok) {
+        // This handles server errors (e.g., 500)
+        throw new Error(`Server responded with status: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // This is the key logic:
+      // If the server says the quota is reached, show the popup.
+      if (data.quotaReached) {
+        showQuotaPopup();
+      } else {
+        // Otherwise, navigate to the interview room.
+        navigate(`/interview-room?role=${role}&category=${encodeURIComponent(category)}`);
+      }
+    } catch (err) {
+      console.error("Failed to check quota:", err);
+      // Show the popup as a fallback if the API call fails for any reason.
+      showQuotaPopup();
+    }
   };
 
   const csTopics = [
-    'Operating Systems (OS)',
-    'Object-Oriented Programming (OOPS)',
-    'Computer Networks',
-    'Database Management Systems (DBMS)',
-    'Data Structures and Algorithms (DSA)',
-    'Computer Organization (CO)',
-    'SQL',
-    'General Interview Prep'
+    'Operating Systems (OS)', 'Object-Oriented Programming (OOPS)', 'Computer Networks',
+    'Database Management Systems (DBMS)', 'Data Structures and Algorithms (DSA)',
+    'Computer Organization (CO)', 'SQL', 'General Interview Prep'
   ];
 
   return (
     <div className="session-setup-container">
-      <div 
-        className={`glass-container ${!isPracticeExpanded ? 'clickable' : ''}`} 
+      <div
+        className={`glass-container ${!isPracticeExpanded ? 'clickable' : ''}`}
         onClick={() => setIsPracticeExpanded(!isPracticeExpanded)}
       >
         <div className="resource-header">
@@ -55,7 +88,7 @@ const SessionSetup = () => {
         </div>
         {isPracticeExpanded && (
           <>
-            <p>Customize your practice interview by selecting your target role and question category. We'll provide relevant questions to help you prepare effectively.</p>
+            <p>Customize your practice interview by selecting your target role and question category.</p>
             <form onSubmit={(e) => { e.stopPropagation(); handleSubmit(e); }} className="setup-form">
               <div className="form-group" onClick={(e) => e.stopPropagation()}>
                 <label htmlFor="role">
@@ -70,7 +103,6 @@ const SessionSetup = () => {
                     <option key={r} value={r}>{r}</option>
                   ))}
                 </select>
-                <small>Select the role you're interviewing for</small>
               </div>
               <div className="form-group" onClick={(e) => e.stopPropagation()}>
                 <label htmlFor="category">
@@ -86,7 +118,6 @@ const SessionSetup = () => {
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
-                <small>Choose the type of questions you want to practice</small>
               </div>
               <button type="submit" className="start-button" onClick={(e) => e.stopPropagation()}>
                 Begin Practice Session
@@ -96,8 +127,8 @@ const SessionSetup = () => {
         )}
       </div>
 
-      <div 
-        className={`glass-container resource-card ${!isResourceCardExpanded ? 'clickable' : ''}`} 
+      <div
+        className={`glass-container resource-card ${!isResourceCardExpanded ? 'clickable' : ''}`}
         onClick={() => setIsResourceCardExpanded(!isResourceCardExpanded)}
       >
         <div className="resource-header">
@@ -108,18 +139,10 @@ const SessionSetup = () => {
             <p>Enhance your interview preparation with our comprehensive study materials</p>
             <div className="resource-topics">
               {csTopics.map((topic, index) => (
-                <div key={index} className="topic-chip">
-                  {topic}
-                </div>
+                <div key={index} className="topic-chip">{topic}</div>
               ))}
             </div>
-            <a 
-              href="https://drive.google.com/drive/folders/1fHNvNDuURUfYgP2bboYQBlpqOGtfoiRR" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="download-button"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <a href="https://drive.google.com/drive/folders/1fHNvNDuURUfYgP2bboYQBlpqOGtfoiRR" target="_blank" rel="noopener noreferrer" className="download-button" onClick={(e) => e.stopPropagation()}>
               Download Resources
             </a>
           </>

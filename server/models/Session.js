@@ -22,10 +22,14 @@ const SessionSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  aiFeedback: {
-    type: String,
-    required: true,
-  },
+  feedback: {
+  type: String,
+  required: true,
+},
+improvements: {
+  type: String,
+  required: true,
+},
   date: {
     type: Date,
     default: Date.now,

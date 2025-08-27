@@ -33,3 +33,4 @@ const CSFundamentalsCard = () => {
 };
 
 export default CSFundamentalsCard;
+  

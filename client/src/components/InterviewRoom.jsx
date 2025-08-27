@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Import useAuth
+import { useAuth } from '../context/AuthContext';
+import { useQuota } from '../context/QuotaContext'; // 1. Import the useQuota hook
 import AnalysisReport from './AnalysisReport';
 import Spinner from './Spinner';
 import AudioVisualizer from './AudioVisualizer';
 
 const InterviewRoom = () => {
-  const { userApiKey } = useAuth(); // Get the user's API key from context
+  const { fetchUserProfile } = useAuth();
+  const { userApiKey } = useAuth();
+  const { showQuotaPopup } = useQuota(); // 2. Use the context to get the popup function
   const location = useLocation();
   const navigate = useNavigate();
   const [question, setQuestion] = useState(null);
@@ -40,7 +43,7 @@ const InterviewRoom = () => {
   // This effect runs once when the component loads to get the first question
   useEffect(() => {
     fetchQuestion();
-  }, [fetchQuestion]); // It will refetch if the user changes filters via the URL
+  }, [fetchQuestion]);
 
   const startRecording = async () => {
     setAnalysis(null);
@@ -79,7 +82,6 @@ const InterviewRoom = () => {
     if (question) {
       formData.append('questionText', question.text);
     }
-    // NEW: Add the user's API key to the form data if it exists
     if (userApiKey) {
       formData.append('geminiApiKey', userApiKey);
     }
@@ -93,9 +95,17 @@ const InterviewRoom = () => {
         },
       });
       setAnalysis(res.data);
+      fetchQuota();
+      fetchUserProfile();
     } catch (error) {
       console.error('Error uploading audio:', error);
-      alert('Failed to submit your answer.');
+      // 3. Check for the specific "Too Many Requests" error from the server
+      if (error.response && error.response.status === 429) {
+        showQuotaPopup(); // If so, trigger the global popup
+      } else {
+        // For any other error, show a generic alert
+        alert('Failed to submit your answer. Please try again.');
+      }
     }
     setIsProcessing(false);
   };
