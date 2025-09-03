@@ -329,6 +329,143 @@
   background-color: rgba(160, 82, 45, 0.1);
 }
 
+/* Dark mode styles for form-group select */
+[data-theme="dark"] .form-group select {
+  background: rgba(30, 50, 80, 0.9) !important;
+  border: 2px solid rgba(96, 165, 250, 0.3) !important;
+  color: var(--primary-text) !important;
+  background-image: 
+    linear-gradient(45deg, transparent 50%, rgba(96, 165, 250, 0.8) 50%),
+    linear-gradient(135deg, rgba(96, 165, 250, 0.8) 50%, transparent 50%),
+    linear-gradient(to right, rgba(96, 165, 250, 0.1), rgba(96, 165, 250, 0.1)) !important;
+  box-shadow: 
+    0 2px 4px rgba(0, 24, 48, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .form-group select option {
+  background-color: rgba(30, 50, 80, 0.95);
+  color: var(--primary-text);
+}
+
+[data-theme="dark"] .form-group select option:checked {
+  background: rgba(96, 165, 250, 0.2);
+  color: var(--primary-text);
+}
+
+[data-theme="dark"] .form-group select option:hover {
+  background-color: rgba(96, 165, 250, 0.15);
+}
+
+[data-theme="dark"] .form-group select:hover {
+  border-color: rgba(96, 165, 250, 0.4);
+  box-shadow: 
+    0 4px 8px rgba(0, 24, 48, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .form-group select:focus {
+  border-color: rgba(96, 165, 250, 0.5);
+  box-shadow: 
+    0 0 0 3px rgba(96, 165, 250, 0.1),
+    0 4px 12px rgba(0, 24, 48, 0.3);
+}
+
+/* Dark mode form background styling */
+[data-theme="dark"] .setup-form {
+  background: rgba(20, 40, 70, 0.8) !important;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-top: 1rem;
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  box-shadow: 
+    0 4px 12px rgba(0, 24, 48, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .glass-container.clickable .setup-form,
+[data-theme="dark"] .glass-container .setup-form {
+  background: rgba(20, 40, 70, 0.8) !important;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-top: 1rem;
+  border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+/* Additional dark mode overrides for glass container forms */
+[data-theme="dark"] .glass-container .form-group select {
+  background: rgba(30, 50, 80, 0.9) !important;
+  border: 2px solid rgba(96, 165, 250, 0.3) !important;
+  color: var(--primary-text) !important;
+}
+
+[data-theme="dark"] .session-setup-container .form-group select {
+  background: rgba(30, 50, 80, 0.9) !important;
+  border: 2px solid rgba(96, 165, 250, 0.3) !important;
+  color: var(--primary-text) !important;
+}
+
+/* CS Topics styling with glossy transparent effect */
+.topics-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.topic-item {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text-color);
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.topic-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Dark mode styling for topics */
+[data-theme="dark"] .topic-item {
+  background: rgba(96, 165, 250, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  box-shadow: 
+    0 2px 8px rgba(0, 24, 48, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .topic-item:hover {
+  background: rgba(96, 165, 250, 0.15);
+  border-color: rgba(96, 165, 250, 0.3);
+  box-shadow: 
+    0 4px 12px rgba(0, 24, 48, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Target specific select elements by ID */
+[data-theme="dark"] select#role,
+[data-theme="dark"] select#category {
+  background: rgba(30, 50, 80, 0.9) !important;
+  border: 2px solid rgba(96, 165, 250, 0.3) !important;
+  color: var(--primary-text) !important;
+  background-image: 
+    linear-gradient(45deg, transparent 50%, rgba(96, 165, 250, 0.8) 50%),
+    linear-gradient(135deg, rgba(96, 165, 250, 0.8) 50%, transparent 50%),
+    linear-gradient(to right, rgba(96, 165, 250, 0.1), rgba(96, 165, 250, 0.1)) !important;
+}
+
 .start-button {
   background-color: var(--accent-color);
   color: white;

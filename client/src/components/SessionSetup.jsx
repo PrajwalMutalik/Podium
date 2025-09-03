@@ -72,9 +72,14 @@ const SessionSetup = () => {
   };
 
   const csTopics = [
-    'Operating Systems (OS)', 'Object-Oriented Programming (OOPS)', 'Computer Networks',
-    'Database Management Systems (DBMS)', 'Data Structures and Algorithms (DSA)',
-    'Computer Organization (CO)', 'SQL', 'General Interview Prep'
+    'Operating Systems (OS)',
+    'Object-Oriented Programming (OOPS)', 
+    'Computer Networks',
+    'Database Management Systems (DBMS)',
+    'Data Structures and Algorithms (DSA)',
+    'Computer Organization (CO)',
+    'SQL',
+    'General Interview Prep'
   ];
 
   return (
@@ -137,9 +142,9 @@ const SessionSetup = () => {
         {isResourceCardExpanded && (
           <>
             <p>Enhance your interview preparation with our comprehensive study materials</p>
-            <div className="resource-topics">
+            <div className="topics-container">
               {csTopics.map((topic, index) => (
-                <div key={index} className="topic-chip">{topic}</div>
+                <div key={index} className="topic-item">{topic}</div>
               ))}
             </div>
             <a href="https://drive.google.com/drive/folders/1fHNvNDuURUfYgP2bboYQBlpqOGtfoiRR" target="_blank" rel="noopener noreferrer" className="download-button" onClick={(e) => e.stopPropagation()}>

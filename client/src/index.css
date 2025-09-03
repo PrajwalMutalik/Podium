@@ -419,21 +419,23 @@
   .glass-container.resource-card {
     cursor: pointer;
     transition: all 0.3s ease;
-    background: var(--glass-bg);
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
-    border: 1px solid rgba(160, 82, 45, 0.1);
+    border: 1px solid rgba(160, 82, 45, 0.15);
     box-shadow: var(--card-shadow);
     position: relative;
     overflow: hidden;
   }
 
   /* Dark mode specific styles */
+  [data-theme="dark"] .glass-container,
   [data-theme="dark"] .resource-card.clickable,
   [data-theme="dark"] .glass-container.clickable,
   [data-theme="dark"] .glass-container.resource-card {
+    background: rgba(30, 50, 80, 0.95);
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgba(96, 165, 250, 0.1);
+    border: 1px solid rgba(96, 165, 250, 0.2);
     box-shadow: 
       0 4px 12px var(--shadow-color),
       inset 0 0 0 1px rgba(255, 255, 255, 0.1);
@@ -510,8 +512,8 @@
     padding-left: 2rem;
     margin: 1rem 0;
     display: block;
-    color: var(--secondary-text);
-    opacity: 0.8;
+    color: var(--text-color);
+    opacity: 1;
   }
 
   .resource-list li {
@@ -519,7 +521,7 @@
     margin: 0.15rem 0;
     text-align: left;
     font-weight: normal;
-    color: var(--secondary-text);
+    color: var(--text-color);
     line-height: 1.4;
     font-size: 0.95rem;
     pointer-events: none;
@@ -562,10 +564,11 @@
 
   /* === CORE GLASS COMPONENT STYLE === */
   .glass-container {
-    background: none;
-    border: none;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(160, 82, 45, 0.15);
+    border-radius: 20px;
     padding: 2rem 2.5rem;
-    box-shadow: none;
+    box-shadow: var(--card-shadow);
   }
 
   .glass-container h1, .glass-container h2 {
@@ -666,17 +669,41 @@
 
   /* Dark mode select specific styles */
   [data-theme="dark"] select {
-    background-color: rgba(13, 17, 23, 0.5);
-    border: 1px solid rgba(96, 165, 250, 0.2);
+    background-color: rgba(30, 50, 80, 0.9) !important;
+    border: 1px solid rgba(96, 165, 250, 0.3) !important;
+    color: var(--primary-text) !important;
     box-shadow: 
       0 4px 12px rgba(0, 24, 48, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
   }
 
+  /* Force dark mode styles for session setup selects */
+  [data-theme="dark"] .session-setup-container select,
+  [data-theme="dark"] .glass-container select,
+  [data-theme="dark"] .form-group select,
+  [data-theme="dark"] select#role,
+  [data-theme="dark"] select#category {
+    background: rgba(30, 50, 80, 0.95) !important;
+    background-color: rgba(30, 50, 80, 0.95) !important;
+    border: 2px solid rgba(96, 165, 250, 0.3) !important;
+    color: var(--primary-text) !important;
+  }
+
+  /* Ultimate override for any stubborn select elements */
+  [data-theme="dark"] div.session-setup-container div.glass-container form.setup-form div.form-group select {
+    background: rgba(30, 50, 80, 0.95) !important;
+    background-color: rgba(30, 50, 80, 0.95) !important;
+    border: 2px solid rgba(96, 165, 250, 0.3) !important;
+    color: var(--primary-text) !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+  }
+
   [data-theme="dark"] select option {
-    background-color: rgb(13, 17, 23);
+    background-color: rgba(30, 50, 80, 0.95);
     color: var(--primary-text);
     padding: 12px;
     cursor: pointer;
@@ -686,9 +713,9 @@
   [data-theme="dark"] select:focus option:focus,
   [data-theme="dark"] select:focus option:active,
   [data-theme="dark"] select option:checked {
-    background: linear-gradient(rgba(13, 17, 23, 0.95), rgba(13, 17, 23, 0.95));
-    background-color: rgba(96, 165, 250, 0.1) !important;
-    color: var(--accent-color);
+    background: rgba(96, 165, 250, 0.2) !important;
+    background-color: rgba(96, 165, 250, 0.2) !important;
+    color: var(--primary-text);
   }
 
   input:focus, select:focus, textarea:focus {
@@ -751,6 +778,11 @@
     background: transparent;
     border: 1px solid var(--accent-color);
     color: var(--accent-color);
+    padding: 0.5rem 1rem;
+    min-width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .nav-button:hover {
     background: var(--accent-color);
