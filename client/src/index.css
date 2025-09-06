@@ -960,10 +960,12 @@
   }
 
   .metric-card {
-    background: rgba(13, 17, 23, 0.5);
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
     padding: 1.5rem;
     border-radius: 12px;
     text-align: center;
+    box-shadow: var(--card-shadow);
   }
 
   .metric-card h3 {
@@ -982,9 +984,11 @@
   .ai-feedback {
     margin-top: 2rem;
     padding: 1.5rem;
-    background: rgba(13, 17, 23, 0.5);
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
     border-left: 4px solid var(--accent-color);
     border-radius: 8px;
+    box-shadow: var(--card-shadow);
   }
 
   /* === FOOTER === */

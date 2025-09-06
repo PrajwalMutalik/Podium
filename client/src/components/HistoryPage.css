@@ -22,16 +22,19 @@
 }
 
 .session-card {
-  background-color: #1f2937;
+  background: var(--card-bg);
   border-radius: 12px;
   padding: 1.5rem;
-  border: 1px solid #374151;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--card-shadow);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .session-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  box-shadow: 
+    var(--card-shadow),
+    0 10px 20px var(--shadow-color);
 }
 
 .session-header {
@@ -64,40 +67,52 @@
 
 .session-header h3 {
   margin: 0;
-  color: #f9fafb;
+  color: var(--primary-text);
 }
 
 .session-metrics {
   display: flex;
   gap: 1rem;
   font-size: 0.9rem;
-  color: #9ca3af;
+  color: var(--secondary-text);
 }
 
 .session-metrics span {
-  background-color: #374151;
+  background: #E6D3B7 !important;
+  border: 1px solid rgba(160, 82, 45, 0.3) !important;
+  color: #6B4423 !important;
   padding: 0.25rem 0.75rem;
   border-radius: 16px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(160, 82, 45, 0.1);
+}
+
+/* More specific selector for the WPM and Fillers spans */
+.session-header .session-metrics span {
+  background-color: #D4C5A9 !important;
+  background: #D4C5A9 !important;
 }
 
 .question-prompt {
   font-style: italic;
-  color: #9ca3af;
+  color: #8B6914;
+  background: #F5E6D3 !important;
   margin-bottom: 1.5rem;
-  padding-left: 1rem;
-  border-left: 3px solid #4c1d95;
+  padding: 1rem;
+  border-left: 3px solid var(--accent-color);
+  border-radius: 8px;
 }
 
 .feedback-details summary {
   cursor: pointer;
   font-weight: bold;
-  color: #a78bfa;
+  color: var(--accent-color);
 }
 
 .details-content {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #374151;
+  border-top: 1px solid var(--glass-border);
 }
 
 
@@ -184,13 +199,13 @@
 .details-content h4 {
   margin-top: 0;
   margin-bottom: 0.5rem;
-  color: #d1d5db;
+  color: var(--primary-text);
 }
 
 .details-content p {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #9ca3af;
+  color: var(--secondary-text);
 }
 .delete-button {
   background-color: #ef4444; 
@@ -464,6 +479,18 @@
     linear-gradient(45deg, transparent 50%, rgba(96, 165, 250, 0.8) 50%),
     linear-gradient(135deg, rgba(96, 165, 250, 0.8) 50%, transparent 50%),
     linear-gradient(to right, rgba(96, 165, 250, 0.1), rgba(96, 165, 250, 0.1)) !important;
+}
+
+/* Dark mode styling for beige theme consistency */
+[data-theme="dark"] .session-metrics span {
+  background: rgba(139, 105, 20, 0.3);
+  border: 1px solid rgba(160, 82, 45, 0.4);
+  color: #F5E6D3;
+}
+
+[data-theme="dark"] .question-prompt {
+  background: rgba(139, 105, 20, 0.2);
+  color: #DEB887;
 }
 
 .start-button {

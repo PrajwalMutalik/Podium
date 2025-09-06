@@ -10,7 +10,7 @@ import AudioVisualizer from './AudioVisualizer';
 const InterviewRoom = () => {
   const { fetchUserProfile } = useAuth();
   const { userApiKey } = useAuth();
-  const { showQuotaPopup } = useQuota(); // 2. Use the context to get the popup function
+  const { fetchQuota } = useQuota(); // Get fetchQuota from context
   const location = useLocation();
   const navigate = useNavigate();
   const [question, setQuestion] = useState(null);
@@ -99,9 +99,9 @@ const InterviewRoom = () => {
       fetchUserProfile();
     } catch (error) {
       console.error('Error uploading audio:', error);
-      // 3. Check for the specific "Too Many Requests" error from the server
+      // Check for the specific "Too Many Requests" error from the server
       if (error.response && error.response.status === 429) {
-        showQuotaPopup(); // If so, trigger the global popup
+        alert('Daily usage limit reached. Please try again tomorrow or upgrade your plan.');
       } else {
         // For any other error, show a generic alert
         alert('Failed to submit your answer. Please try again.');

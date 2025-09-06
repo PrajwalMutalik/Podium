@@ -135,10 +135,9 @@ router.post('/submit', [auth, usageLimit, upload.single('audio')], async (req, r
       ...analysisResult // Spread the result to save all fields
     });
     await newSession.save();
-    console.log("6. Session saved. Sending response.");
+    console.log("6. Session saved. Processing gamification...");
     await processGamification(req.user.id, analysisResult);
-    await user.save();
-    res.json(user); 
+    console.log("7. Gamification processed. Sending response.");
     res.status(200).json(analysisResult);
 
   } catch (error) {
