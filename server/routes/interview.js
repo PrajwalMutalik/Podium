@@ -11,20 +11,26 @@ const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@googl
 const { processGamification } = require('../services/gamificationService'); // 👈 Import the service
 
 const assemblyClient = new AssemblyAI({ apiKey: process.env.ASSEMBLYAI_API_KEY });
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const model = genAI.getGenerativeModel({
-  model: 'gemini-1.5-flash',
-  generationConfig: {
-    responseMimeType: "application/json",
-  },
-  safetySettings: [
-    {
-      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-      threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+// Only create default Gemini model if server API key exists
+let genAI = null;
+let model = null;
+
+if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '') {
+  genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  model = genAI.getGenerativeModel({
+    model: 'gemini-1.5-flash',
+    generationConfig: {
+      responseMimeType: "application/json",
     },
-  ],
-});
+    safetySettings: [
+      {
+        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+      },
+    ],
+  });
+}
 
 const upload = multer({ dest: 'uploads/' });
 const DAILY_LIMIT = 10;
@@ -38,7 +44,17 @@ router.get('/check-quota', auth, async (req, res) => {
       return res.json({ currentUsage: 0, dailyLimit: 'Unlimited' });
     }
 
-    // For users without API key, they have daily limit of 10
+    // If no server API key is available, users must provide their own
+    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.trim() === '') {
+      return res.json({ 
+        currentUsage: 0, 
+        dailyLimit: 0,
+        requiresApiKey: true,
+        message: 'Please add your own Gemini API key in Settings to use this feature.'
+      });
+    }
+
+    // For users without API key but server has one, they have daily limit of 10
     const today_utc_string = new Date().toISOString().split('T')[0];
     const last_usage_utc_string = user.lastApiUsageDate 
       ? user.lastApiUsageDate.toISOString().split('T')[0] 
@@ -95,7 +111,7 @@ router.post('/submit', [auth, upload.single('audio'), usageLimit], async (req, r
     console.log("User stored API key:", userStoredApiKey ? `${userStoredApiKey.substring(0, 10)}...` : 'Not stored');
     
     // Use custom API key if provided, otherwise check stored key, otherwise use default model
-    let aiModel = model; // Default model
+    let aiModel = null;
     let apiKeyToUse = geminiApiKey || userStoredApiKey;
     
     if (apiKeyToUse && apiKeyToUse.trim() !== '') {
@@ -125,8 +141,15 @@ router.post('/submit', [auth, upload.single('audio'), usageLimit], async (req, r
           error: 'Custom API key configuration failed'
         });
       }
-    } else {
+    } else if (model) {
       console.log("Using default server API key");
+      aiModel = model;
+    } else {
+      console.log("❌ No API key available - neither user nor server");
+      return res.status(400).json({ 
+        msg: 'No Gemini API key available. Please add your own API key in Settings to use this feature.',
+        error: 'No API key configured'
+      });
     }
     
     const prompt = `

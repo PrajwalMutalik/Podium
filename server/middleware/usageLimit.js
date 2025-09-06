@@ -57,9 +57,18 @@ const usageLimit = async (req, res, next) => {
         console.log('❌ Invalid API key detected, applying daily limit');
         // Continue to daily limit logic below
       }
-    } else {
-      console.log('⚠️  DAILY LIMIT (10) - No custom API key provided');
     }
+
+    // 4. Check if server has API key - if not, user must provide their own
+    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.trim() === '') {
+      console.log('❌ No server API key available - user must provide their own');
+      return res.status(400).json({ 
+        msg: 'No Gemini API key available. Please add your own API key in Settings to use this feature.',
+        requiresApiKey: true
+      });
+    }
+
+    console.log('⚠️  DAILY LIMIT (10) - Using server API key with daily limit');
     const today = new Date().toISOString().split('T')[0]; // Gets 'YYYY-MM-DD' in UTC
     const lastUsage = user.lastApiUsageDate ? user.lastApiUsageDate.toISOString().split('T')[0] : null;
 
