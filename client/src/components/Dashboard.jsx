@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // 1. Import useAuth
+import { useQuota } from '../context/QuotaContext';
 import Spinner from './Spinner';
 import './Dashboard.css';
 
@@ -26,7 +27,8 @@ const Badge = ({ name }) => {
 
 const Dashboard = () => {
   // 2. Get userProfile from the AuthContext
-  const { userProfile } = useAuth(); 
+  const { userProfile, userApiKey } = useAuth(); 
+  const { quota, isLoading: quotaLoading } = useQuota();
   const navigate = useNavigate();
 
   const [stats, setStats] = useState({
@@ -84,6 +86,17 @@ const Dashboard = () => {
         <div className="stat-card glass-container">
           <h3>Practice Streak</h3>
           <p>{userProfile.currentStreak} Days 🔥</p>
+        </div>
+        {/* API Usage Quota */}
+        <div className="stat-card glass-container">
+          <h3>Daily Usage</h3>
+          {quotaLoading ? (
+            <p>Loading...</p>
+          ) : userApiKey ? (
+            <p>Unlimited ♾️</p>
+          ) : (
+            <p>{quota.currentUsage} / {quota.dailyLimit}</p>
+          )}
         </div>
         {/* Existing Stats */}
         <div className="stat-card glass-container">

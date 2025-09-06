@@ -95,7 +95,7 @@ const InterviewRoom = () => {
         },
       });
       setAnalysis(res.data);
-      fetchQuota();
+      await fetchQuota(); // Refresh quota after successful submission
       fetchUserProfile();
     } catch (error) {
       console.error('Error uploading audio:', error);

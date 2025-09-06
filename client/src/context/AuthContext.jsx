@@ -62,8 +62,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const saveUserApiKey = (key) => {
-    localStorage.setItem('geminiApiKey', key);
-    setUserApiKey(key);
+    localStorage.setItem('geminiApiKey', key || '');
+    setUserApiKey(key || '');
+  };
+
+  const removeUserApiKey = () => {
+    localStorage.removeItem('geminiApiKey');
+    setUserApiKey('');
   };
 
   const value = {
@@ -73,6 +78,7 @@ export const AuthProvider = ({ children }) => {
     userProfile, // 3. Expose the profile data
     fetchUserProfile, // 4. Expose the refresh function
     saveUserApiKey,
+    removeUserApiKey,
     login,
     logout,
   };

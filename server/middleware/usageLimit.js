@@ -1,7 +1,25 @@
 // server/middleware/usageLimit.js
 
 const User = require('../models/User');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const DAILY_LIMIT = 10; // You can change your daily limit here
+
+// Function to verify if a Gemini API key is valid
+const verifyGeminiApiKey = async (apiKey) => {
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey.trim());
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    
+    // Make a simple test request
+    const result = await model.generateContent("Hello");
+    const response = await result.response;
+    
+    return response.text() ? true : false;
+  } catch (error) {
+    console.log('API key verification failed:', error.message);
+    return false;
+  }
+};
 
 const usageLimit = async (req, res, next) => {
   try {
@@ -18,12 +36,30 @@ const usageLimit = async (req, res, next) => {
       return res.status(404).json({ msg: 'User not found.' });
     }
 
-    // 3. Bypass limit if user has their own API key
-    if (user.geminiApiKey) {
-      return next(); // User has their own key, so we skip the limit check
+    // 3. Check if user has their own API key and verify it
+    const customApiKey = req.body.geminiApiKey;
+    const hasStoredKey = user.geminiApiKey && user.geminiApiKey.trim() !== '';
+    const hasRequestKey = customApiKey && customApiKey.trim() !== '';
+    
+    if (hasStoredKey || hasRequestKey) {
+      console.log('🔍 Verifying custom API key...');
+      
+      // Choose which API key to verify
+      const keyToVerify = hasRequestKey ? customApiKey.trim() : user.geminiApiKey.trim();
+      
+      // Verify the API key
+      const isValidKey = await verifyGeminiApiKey(keyToVerify);
+      
+      if (isValidKey) {
+        console.log('✅ UNLIMITED USAGE - Valid custom API key verified');
+        return next(); // Valid API key = unlimited usage
+      } else {
+        console.log('❌ Invalid API key detected, applying daily limit');
+        // Continue to daily limit logic below
+      }
+    } else {
+      console.log('⚠️  DAILY LIMIT (10) - No custom API key provided');
     }
-
-    // 4. Check and reset the daily counter
     const today = new Date().toISOString().split('T')[0]; // Gets 'YYYY-MM-DD' in UTC
     const lastUsage = user.lastApiUsageDate ? user.lastApiUsageDate.toISOString().split('T')[0] : null;
 

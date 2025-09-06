@@ -1059,3 +1059,69 @@
     width: 100%;
     height: 100%;
   }
+
+  /* === API STATUS CARD === */
+  .api-status-card {
+    margin-top: 2rem;
+    padding: 1.25rem;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+  }
+
+  .api-status-card.active {
+    background: rgba(212, 197, 169, 0.8);
+    border-color: rgba(160, 82, 45, 0.3);
+  }
+
+  .api-status-card.limited {
+    background: rgba(243, 244, 246, 0.8);
+    border-color: rgba(160, 82, 45, 0.2);
+  }
+
+  .api-status-card h3 {
+    margin: 0 0 0.75rem 0;
+    color: var(--primary-text);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .api-status-card p {
+    margin: 0.5rem 0;
+    color: var(--primary-text);
+    line-height: 1.5;
+  }
+
+  .api-status-card p small {
+    color: var(--secondary-text);
+    font-size: 0.9rem;
+  }
+
+  /* Dark mode styles for API status card */
+  [data-theme="dark"] .api-status-card.active {
+    background: rgba(96, 165, 250, 0.15);
+    border-color: rgba(96, 165, 250, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 24, 48, 0.2);
+  }
+
+  [data-theme="dark"] .api-status-card.limited {
+    background: rgba(30, 50, 80, 0.6);
+    border-color: rgba(96, 165, 250, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 24, 48, 0.15);
+  }
+
+  [data-theme="dark"] .api-status-card h3 {
+    color: var(--primary-text);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  [data-theme="dark"] .api-status-card p {
+    color: var(--primary-text);
+  }
+
+  [data-theme="dark"] .api-status-card p small {
+    color: var(--secondary-text);
+    opacity: 0.9;
+  }

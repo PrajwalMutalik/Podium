@@ -33,11 +33,12 @@ router.get('/check-quota', auth, async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
-    // For users with their own key, they have no practical limit
-    if (user.geminiApiKey) {
+    // For users with their own stored key, they have unlimited usage
+    if (user.geminiApiKey && user.geminiApiKey.trim() !== '') {
       return res.json({ currentUsage: 0, dailyLimit: 'Unlimited' });
     }
 
+    // For users without API key, they have daily limit of 10
     const today_utc_string = new Date().toISOString().split('T')[0];
     const last_usage_utc_string = user.lastApiUsageDate 
       ? user.lastApiUsageDate.toISOString().split('T')[0] 
@@ -50,7 +51,7 @@ router.get('/check-quota', auth, async (req, res) => {
       currentUsage = 0;
     }
     
-    // Send back the current usage and the defined limit
+    // Send back the current usage and the defined limit of 10
     res.json({ currentUsage, dailyLimit: DAILY_LIMIT });
 
   } catch (error) {
@@ -60,8 +61,14 @@ router.get('/check-quota', auth, async (req, res) => {
 });
 
 
-router.post('/submit', [auth, usageLimit, upload.single('audio')], async (req, res) => {
-  const { questionText } = req.body;
+router.post('/submit', [auth, upload.single('audio'), usageLimit], async (req, res) => {
+  const { questionText, geminiApiKey } = req.body;
+  
+  console.log("=== DEBUG INFO ===");
+  console.log("questionText received:", !!questionText);
+  console.log("geminiApiKey from request:", geminiApiKey ? `${geminiApiKey.substring(0, 10)}...` : 'Not provided');
+  console.log("geminiApiKey length:", geminiApiKey ? geminiApiKey.length : 0);
+  
   if (!req.file || !questionText) {
     return res.status(400).send('Missing audio file or question text.');
   }
@@ -80,6 +87,48 @@ router.post('/submit', [auth, usageLimit, upload.single('audio')], async (req, r
     }
 
     console.log("3. Generating AI feedback...");
+    
+    // Get the user from database to check for stored API key
+    const user = await User.findById(req.user.id);
+    const userStoredApiKey = user ? user.geminiApiKey : null;
+    
+    console.log("User stored API key:", userStoredApiKey ? `${userStoredApiKey.substring(0, 10)}...` : 'Not stored');
+    
+    // Use custom API key if provided, otherwise check stored key, otherwise use default model
+    let aiModel = model; // Default model
+    let apiKeyToUse = geminiApiKey || userStoredApiKey;
+    
+    if (apiKeyToUse && apiKeyToUse.trim() !== '') {
+      console.log("Using custom/stored Gemini API key for this request");
+      console.log("Final API key starts with:", apiKeyToUse.trim().substring(0, 10) + "...");
+      console.log("Final API key length:", apiKeyToUse.trim().length);
+      
+      try {
+        const customGenAI = new GoogleGenerativeAI(apiKeyToUse.trim());
+        aiModel = customGenAI.getGenerativeModel({
+          model: 'gemini-1.5-flash',
+          generationConfig: {
+            responseMimeType: "application/json",
+          },
+          safetySettings: [
+            {
+              category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+              threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+            },
+          ],
+        });
+        console.log("✅ Custom Gemini model created successfully");
+      } catch (modelError) {
+        console.error("❌ Error creating custom Gemini model:", modelError);
+        return res.status(400).json({ 
+          msg: 'Invalid API key provided. Please check your Gemini API key and try again.',
+          error: 'Custom API key configuration failed'
+        });
+      }
+    } else {
+      console.log("Using default server API key");
+    }
+    
     const prompt = `
     You are an expert career coach. Analyze the user's interview answer.
     The user was asked: "${questionText}"
@@ -88,7 +137,27 @@ router.post('/submit', [auth, usageLimit, upload.single('audio')], async (req, r
     - "feedback": A concise, friendly paragraph summarizing the answer.
     - "improvements": A concise, friendly paragraph with actionable suggestions.
     `;
-    const result = await model.generateContent(prompt);
+    
+    let result;
+    try {
+      result = await aiModel.generateContent(prompt);
+    } catch (apiError) {
+      console.error("Error calling Gemini API:", apiError);
+      
+      // If it's a custom API key error, provide specific feedback
+      if (geminiApiKey && apiError.message.includes('API key not valid')) {
+        return res.status(400).json({ 
+          msg: 'Your custom API key is invalid. Please check your Gemini API key in Settings and try again.',
+          error: 'Invalid custom API key'
+        });
+      }
+      
+      // For other API errors, fall back to generic error
+      return res.status(500).json({ 
+        msg: 'Error generating AI feedback. Please try again.',
+        error: 'AI service unavailable'
+      });
+    }
     const responseText = await result.response.text();
     console.log("4. AI response received:", responseText); // Log the raw AI response
 
