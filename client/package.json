@@ -6,8 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "vite preview --port 4173 --host 0.0.0.0",
     "lint": "eslint .",
     "preview": "vite preview"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "proxy": "http://localhost:5001" ,
 
