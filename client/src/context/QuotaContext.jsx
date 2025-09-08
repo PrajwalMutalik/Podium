@@ -11,7 +11,7 @@ export const QuotaProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { token, userApiKey } = useAuth();
 
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  const VITE_BACKEND_URL = import.meta.env.VITE_VITE_BACKEND_URL;
 
   const fetchQuota = useCallback(async () => {
     if (!token) {
@@ -22,7 +22,7 @@ export const QuotaProvider = ({ children }) => {
 
     try {
       setIsLoading(true);
-      const response = await axios.get(`${BACKEND_URL}/api/interview/check-quota`, {
+      const response = await axios.get(`${VITE_BACKEND_URL}/api/interview/check-quota`, {
         headers: {
           'x-auth-token': token,
         },
@@ -38,7 +38,7 @@ export const QuotaProvider = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [token, userApiKey, BACKEND_URL]);
+  }, [token, userApiKey, VITE_BACKEND_URL]);
 
   // Auto-fetch quota when token or API key changes
   useEffect(() => {

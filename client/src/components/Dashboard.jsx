@@ -39,14 +39,14 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   // Use the environment variable for the backend URL
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  const VITE_BACKEND_URL = import.meta.env.VITE_VITE_BACKEND_URL;
 
   useEffect(() => {
     // This useEffect now only fetches session data. Profile data comes from the context.
     const fetchSessionStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${BACKEND_URL}/api/sessions`, {
+        const res = await axios.get(`${VITE_BACKEND_URL}/api/sessions`, {
           headers: { 'x-auth-token': token },
         });
 
