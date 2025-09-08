@@ -11,8 +11,12 @@ const PORT = process.env.PORT || 5001;
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
-  process.env.FRONTEND_URL,
 ];
+
+// Add the deployed frontend URL if it exists
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
 
 const corsOptions = {
   origin: (origin, callback) => {
