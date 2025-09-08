@@ -1,15 +1,34 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path'); // Import the 'path' module
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+// --- CORS Configuration ---
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  process.env.FRONTEND_URL,
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Check if the origin is in the allowed list or if it's a same-origin request (origin is undefined)
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  optionsSuccessStatus: 200,
+};
+
 // --- Middleware ---
-// 1. Enable CORS for all API requests
-app.use(cors());
+// 1. Enable CORS with the specific options
+app.use(cors(corsOptions));
 // 2. Enable Express to parse JSON bodies
 app.use(express.json());
 
@@ -19,24 +38,17 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch(err => console.error('MongoDB connection error:', err));
 
 // --- API Routes ---
-// All of your API endpoints are registered here.
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/questions', require('./routes/questions'));
 app.use('/api/interview', require('./routes/interview'));
 app.use('/api/sessions', require('./routes/sessions'));
 app.use('/api/contact', require('./routes/contact'));
-app.use('/api/user', require('./routes/user')); 
+app.use('/api/user', require('./routes/user'));
 app.use('/api/leaderboard', require('./routes/leaderboard'));
 
 // --- Serve Static Frontend ---
-// This section must come AFTER your API routes.
-// It tells Express to serve your compiled React app in production.
 if (process.env.NODE_ENV === 'production') {
-  // Set the static folder where your React build is located
   app.use(express.static('client/build'));
-
-  // This "catch-all" route handles any request that doesn't match an API route.
-  // It sends back the main index.html file, allowing React Router to take over.
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
   });
