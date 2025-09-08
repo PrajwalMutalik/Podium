@@ -7,13 +7,13 @@ const HistoryPage = () => {
   const [loading, setLoading] = useState(true);
 
   // Use the environment variable for the backend URL
-  const VITE_BACKEND_URL = import.meta.env.VITE_VITE_BACKEND_URL;
+  const VITE_API_BASE_URL = import.meta.env.VITE_VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchSessions = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${VITE_BACKEND_URL}/api/sessions`, {
+        const res = await axios.get(`${VITE_API_BASE_URL}/api/sessions`, {
           headers: { 'x-auth-token': token },
         });
         setSessions(res.data);
@@ -23,13 +23,13 @@ const HistoryPage = () => {
       setLoading(false);
     };
     fetchSessions();
-  }, [VITE_BACKEND_URL]);
+  }, [VITE_API_BASE_URL]);
 
   const handleDelete = async (sessionId) => {
     if (window.confirm('Are you sure you want to delete this session? This action cannot be undone.')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`${VITE_BACKEND_URL}/api/sessions/${sessionId}`, {
+        await axios.delete(`${VITE_API_BASE_URL}/api/sessions/${sessionId}`, {
           headers: { 'x-auth-token': token },
         });
         setSessions(sessions.filter((session) => session._id !== sessionId));

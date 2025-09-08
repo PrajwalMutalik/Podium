@@ -22,7 +22,7 @@ const InterviewRoom = () => {
   const audioChunks = useRef([]);
   
   // Use the environment variable for the backend URL
-  const VITE_BACKEND_URL = import.meta.env.VITE_VITE_BACKEND_URL;
+  const VITE_API_BASE_URL = import.meta.env.VITE_VITE_API_BASE_URL;
 
   // This function fetches the question from the backend
   const fetchQuestion = useCallback(async () => {
@@ -32,7 +32,7 @@ const InterviewRoom = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${VITE_BACKEND_URL}/api/questions/random`, {
+      const res = await axios.get(`${VITE_API_BASE_URL}/api/questions/random`, {
         headers: { 'x-auth-token': token },
         params: { role, category },
       });
@@ -91,7 +91,7 @@ const InterviewRoom = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(`${VITE_BACKEND_URL}/api/interview/submit`, formData, {
+      const res = await axios.post(`${VITE_API_BASE_URL}/api/interview/submit`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'x-auth-token': token,

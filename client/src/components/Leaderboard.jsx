@@ -10,7 +10,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   // Use the environment variable for the backend URL
-  const VITE_BACKEND_URL = import.meta.env.VITE_VITE_BACKEND_URL;
+  const VITE_API_BASE_URL = import.meta.env.VITE_VITE_API_BASE_URL;
 
   const { email, password } = formData;
   const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,8 +19,8 @@ const Login = () => {
     e.preventDefault();
     setMessage(''); // Clear previous messages
     try {
-      // Use the VITE_BACKEND_URL variable to make the API call
-      const res = await axios.post(`${VITE_BACKEND_URL}/api/auth/login`, { email, password });
+      // Use the VITE_API_BASE_URL variable to make the API call
+      const res = await axios.post(`${VITE_API_BASE_URL}/api/auth/login`, { email, password });
       login(res.data.token);
       navigate('/dashboard');
     } catch (err) {

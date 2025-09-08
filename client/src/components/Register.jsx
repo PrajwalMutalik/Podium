@@ -10,13 +10,13 @@ const Register = () => {
   const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   // Use the environment variable for the backend URL
-  const VITE_BACKEND_URL = import.meta.env.VITE_VITE_BACKEND_URL;
+  const VITE_API_BASE_URL = import.meta.env.VITE_VITE_API_BASE_URL;
 
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Use the VITE_BACKEND_URL variable to make the API call
-      await axios.post(`${VITE_BACKEND_URL}/api/auth/register`, { name, email, password });
+      // Use the VITE_API_BASE_URL variable to make the API call
+      await axios.post(`${VITE_API_BASE_URL}/api/auth/register`, { name, email, password });
       // NOTE: Using a custom modal or message box is recommended instead of alert()
       alert('Registration successful! Please log in.');
       navigate('/login');

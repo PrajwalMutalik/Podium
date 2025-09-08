@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
   // This will hold all user data, including points, streak, and badges.
   const [userProfile, setUserProfile] = useState(null);
 
-  const VITE_BACKEND_URL = import.meta.env.VITE_VITE_BACKEND_URL;
+  const VITE_API_BASE_URL = import.meta.env.VITE_VITE_API_BASE_URL;
 
   // ADDED FUNCTION TO FETCH/REFRESH PROFILE
   // This function gets the latest user data from the server.
@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
     }
     try {
       // Use the environment variable for the backend URL
-      const res = await axios.get(`${VITE_BACKEND_URL}/api/user/me`, {
+      const res = await axios.get(`${VITE_API_BASE_URL}/api/user/me`, {
         headers: { 'x-auth-token': currentToken },
       });
       setUserProfile(res.data); // Store the fetched user profile
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
         logout();
       }
     }
-  }, [VITE_BACKEND_URL]); 
+  }, [VITE_API_BASE_URL]); 
 
   useEffect(() => {
     if (token) {

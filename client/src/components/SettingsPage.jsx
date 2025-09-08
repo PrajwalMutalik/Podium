@@ -11,7 +11,7 @@ const SettingsPage = () => {
   const [isVerifying, setIsVerifying] = useState(false);
   
   // Use the environment variable for the backend URL
-  const VITE_BACKEND_URL = import.meta.env.VITE_VITE_BACKEND_URL;
+  const VITE_API_BASE_URL = import.meta.env.VITE_VITE_API_BASE_URL;
 
   // Sync local state with context when userApiKey changes
   useEffect(() => {
@@ -32,7 +32,7 @@ const SettingsPage = () => {
       // Optionally save to database for persistent storage (with verification)
       if (saveToDatabase) {
         const token = localStorage.getItem('token');
-        const response = await axios.post(`${VITE_BACKEND_URL}/api/user/update-api-key`, 
+        const response = await axios.post(`${VITE_API_BASE_URL}/api/user/update-api-key`, 
           { geminiApiKey: apiKey },
           { headers: { 'x-auth-token': token } }
         );
@@ -82,7 +82,7 @@ const SettingsPage = () => {
       
       // Remove from database as well
       const token = localStorage.getItem('token');
-      const response = await axios.post(`${VITE_BACKEND_URL}/api/user/update-api-key`, 
+      const response = await axios.post(`${VITE_API_BASE_URL}/api/user/update-api-key`, 
         { geminiApiKey: '' },
         { headers: { 'x-auth-token': token } }
       );

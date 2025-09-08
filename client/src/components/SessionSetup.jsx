@@ -29,7 +29,7 @@ const SessionSetup = () => {
     setCategory('All');
   }, [role]);
 
-  const VITE_BACKEND_URL = import.meta.env.VITE_VITE_BACKEND_URL;
+  const VITE_API_BASE_URL = import.meta.env.VITE_VITE_API_BASE_URL;
 
   // This is the corrected API call handler.
   const handleSubmit = async (e) => {
@@ -43,7 +43,7 @@ const SessionSetup = () => {
         return;
       }
 
-      const res = await fetch(`${VITE_BACKEND_URL}/api/interview/check-quota`, {
+      const res = await fetch(`${VITE_API_BASE_URL}/api/interview/check-quota`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
