@@ -16,10 +16,13 @@ export default defineConfig({
   preview: {
     port: 4173,
     host: '0.0.0.0',
+    allowedHosts: [
+      'podium-1.onrender.com', // Add this line
+      'localhost',
+      '127.0.0.1',
+    ],
   },
   server: {
-    // This proxy configuration is the key to fixing the issue.
-    // It tells the Vite development server how to handle API requests.
     proxy: {
       // Any request that starts with "/api" will be forwarded.
       '/api': {
