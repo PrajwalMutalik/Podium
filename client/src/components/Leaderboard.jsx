@@ -1,145 +1,57 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-// --- MOCK COMPONENTS & STYLES FOR PREVIEW ---
-// These are included to make the component runnable and resolve import errors.
+const Login = () => {
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [message, setMessage] = useState(''); // State for the message
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-const Spinner = ({ text }) => (
-  <div style={{ padding: '2rem', textAlign: 'center' }}>
-    <p>{text || 'Loading...'}</p>
-  </div>
-);
+  // Use the environment variable for the backend URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-// CSS is injected directly for preview purposes
-const LeaderboardStyles = `
-  .leaderboard-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
-    text-align: center;
-  }
-  .leaderboard-container h1 {
-    font-size: 2.5rem;
-    color: var(--accent-color, #A0522D);
-    margin-bottom: 0.5rem;
-  }
-  .leaderboard-container p {
-    color: var(--secondary-text, #666);
-    margin-bottom: 2rem;
-  }
-  .leaderboard-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(-20px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-  .leaderboard-item {
-    display: grid;
-    grid-template-columns: 50px 1fr auto;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 1rem 1.5rem;
-    border-radius: 12px;
-    text-align: left;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    animation: slideIn 0.5s ease-out forwards;
-    opacity: 0;
-  }
-  .leaderboard-item:nth-child(1) { animation-delay: 0.1s; }
-  .leaderboard-item:nth-child(2) { animation-delay: 0.2s; }
-  .leaderboard-item:nth-child(3) { animation-delay: 0.3s; }
-  .leaderboard-item:nth-child(4) { animation-delay: 0.4s; }
-  .leaderboard-item:nth-child(5) { animation-delay: 0.5s; }
-  .leaderboard-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  }
-  .rank {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--accent-color, #A0522D);
-    text-align: center;
-  }
-  .user-name {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--primary-text, #333);
-  }
-  .user-points {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: var(--accent-color, #A0522D);
-    background-color: rgba(160, 82, 45, 0.1);
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-  }
-  .glass-container {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-`;
+  const { email, password } = formData;
+  const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-// Helper to assign medal icons to top ranks
-const getRankIcon = (rank) => {
-  if (rank === 1) return '🥇';
-  if (rank === 2) return '🥈';
-  if (rank === 3) return '🥉';
-  return `#${rank}`;
-};
-
-const Leaderboard = () => {
-  const [leaderboard, setLeaderboard] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('/api/leaderboard', {
-          headers: { 'x-auth-token': token },
-        });
-        setLeaderboard(res.data);
-      } catch (error) {
-        console.error('Error fetching leaderboard:', error);
-        // Add mock data for previewing in case API fails
-        setLeaderboard([
-          { _id: '1', name: 'Alice', points: 1250 },
-          { _id: '2', name: 'Bob', points: 1100 },
-          { _id: '3', name: 'Charlie', points: 980 },
-          { _id: '4', name: 'Diana', points: 850 },
-        ]);
-      }
-      setLoading(false);
-    };
-    fetchLeaderboard();
-  }, []);
-
-  if (loading) {
-    return <Spinner text="Loading Leaderboard..." />;
-  }
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setMessage(''); // Clear previous messages
+    try {
+      // Use the BACKEND_URL variable to make the API call
+      const res = await axios.post(`${BACKEND_URL}/api/auth/login`, { email, password });
+      login(res.data.token);
+      navigate('/dashboard');
+    } catch (err) {
+      console.error(err.response.data);
+      setMessage(err.response.data.msg || 'Login failed'); // Set the error message
+    }
+  };
 
   return (
-    <>
-      <style>{LeaderboardStyles}</style>
-      <div className="leaderboard-container">
-        <h1>Top Performers</h1>
-        <p>See who's leading the pack. Keep practicing to climb the ranks!</p>
-        <div className="leaderboard-list">
-          {leaderboard.map((user, index) => (
-            <div key={user._id} className="leaderboard-item glass-container">
-              <div className="rank">{getRankIcon(index + 1)}</div>
-              <div className="user-name">{user.name}</div>
-              <div className="user-points">{user.points} XP</div>
-            </div>
-          ))}
+    <div className="glass-container" style={{ maxWidth: '450px', margin: '4rem auto' }}>
+      <h1>Login</h1>
+      <form onSubmit={onSubmit}>
+        <input type="email" name="email" value={email} onChange={onChange} placeholder="Email Address" required />
+        <input type="password" name="password" value={password} onChange={onChange} placeholder="Password" required />
+        <button type="submit">Login</button>
+      </form>
+      {message && (
+        <div style={{
+          marginTop: '1.5rem',
+          padding: '0.75rem',
+          backgroundColor: '#ef4444',
+          color: 'white',
+          borderRadius: '8px',
+          textAlign: 'center'
+        }}>
+          {message}
         </div>
-      </div>
-    </>
+      )}
+      <p style={{marginTop: '1.5rem', fontSize: '0.9rem'}}>Don't have an account? <Link to="/register" style={{color: 'var(--accent-color)'}}>Register</Link></p>
+    </div>
   );
 };
 
-export default Leaderboard;
+export default Login;

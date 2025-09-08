@@ -20,6 +20,9 @@ const InterviewRoom = () => {
   const [audioStream, setAudioStream] = useState(null);
   const mediaRecorder = useRef(null);
   const audioChunks = useRef([]);
+  
+  // Use the environment variable for the backend URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   // This function fetches the question from the backend
   const fetchQuestion = useCallback(async () => {
@@ -29,7 +32,7 @@ const InterviewRoom = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5001/api/questions/random', {
+      const res = await axios.get(`${BACKEND_URL}/api/questions/random`, {
         headers: { 'x-auth-token': token },
         params: { role, category },
       });
@@ -61,7 +64,7 @@ const InterviewRoom = () => {
       mediaRecorder.current.start();
     } catch (err) {
       console.error("Error accessing microphone:", err);
-      alert("Could not access microphone. Please check your browser permissions.");
+      window.confirm("Could not access microphone. Please check your browser permissions.");
     }
   };
 
@@ -88,7 +91,7 @@ const InterviewRoom = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:5001/api/interview/submit', formData, {
+      const res = await axios.post(`${BACKEND_URL}/api/interview/submit`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'x-auth-token': token,
@@ -101,10 +104,10 @@ const InterviewRoom = () => {
       console.error('Error uploading audio:', error);
       // Check for the specific "Too Many Requests" error from the server
       if (error.response && error.response.status === 429) {
-        alert('Daily usage limit reached. Please try again tomorrow or upgrade your plan.');
+        window.confirm('Daily usage limit reached. Please try again tomorrow or upgrade your plan.');
       } else {
-        // For any other error, show a generic alert
-        alert('Failed to submit your answer. Please try again.');
+        // For any other error, show a generic message
+        window.confirm('Failed to submit your answer. Please try again.');
       }
     }
     setIsProcessing(false);

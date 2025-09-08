@@ -8,17 +8,22 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // Use the environment variable for the backend URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
   const { email, password } = formData;
   const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5001/api/auth/login', { email, password });
+      // Use the BACKEND_URL variable to make the API call
+      const res = await axios.post(`${BACKEND_URL}/api/auth/login`, { email, password });
       login(res.data.token);
       navigate('/dashboard');
     } catch (err) {
       console.error(err.response.data);
+      // NOTE: Using a custom modal or message box is recommended instead of alert()
       alert(err.response.data.msg || 'Login failed');
     }
   };

@@ -27,7 +27,7 @@ const Badge = ({ name }) => {
 
 const Dashboard = () => {
   // 2. Get userProfile from the AuthContext
-  const { userProfile, userApiKey } = useAuth(); 
+  const { userProfile, userApiKey } = useAuth();
   const { quota, isLoading: quotaLoading } = useQuota();
   const navigate = useNavigate();
 
@@ -38,15 +38,18 @@ const Dashboard = () => {
   });
   const [loading, setLoading] = useState(true);
 
+  // Use the environment variable for the backend URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     // This useEffect now only fetches session data. Profile data comes from the context.
     const fetchSessionStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('/api/sessions', {
+        const res = await axios.get(`${BACKEND_URL}/api/sessions`, {
           headers: { 'x-auth-token': token },
         });
-        
+
         const sessions = res.data;
         if (sessions.length > 0) {
           const totalWpm = sessions.reduce((sum, s) => sum + s.wpm, 0);

@@ -13,11 +13,14 @@ const ContactPage = () => {
 
   const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
+  // Use the environment variable for the backend URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault(); 
     setStatus('Sending...');
     try {
-      await axios.post('http://localhost:5001/api/contact', { name, email, message });
+      await axios.post(`${BACKEND_URL}/api/contact`, { name, email, message });
       setStatus('Message sent successfully!');
       setFormData({ name: '', email: '', message: '' }); 
     } catch (error) {

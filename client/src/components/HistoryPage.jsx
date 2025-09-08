@@ -6,11 +6,14 @@ const HistoryPage = () => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Use the environment variable for the backend URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     const fetchSessions = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:5001/api/sessions', {
+        const res = await axios.get(`${BACKEND_URL}/api/sessions`, {
           headers: { 'x-auth-token': token },
         });
         setSessions(res.data);
@@ -20,19 +23,20 @@ const HistoryPage = () => {
       setLoading(false);
     };
     fetchSessions();
-  }, []);
+  }, [BACKEND_URL]);
 
   const handleDelete = async (sessionId) => {
     if (window.confirm('Are you sure you want to delete this session? This action cannot be undone.')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5001/api/sessions/${sessionId}`, {
+        await axios.delete(`${BACKEND_URL}/api/sessions/${sessionId}`, {
           headers: { 'x-auth-token': token },
         });
         setSessions(sessions.filter((session) => session._id !== sessionId));
       } catch (error) {
         console.error('Error deleting session:', error);
-        alert('Failed to delete session.');
+        // Use console.error instead of alert() to avoid blocking the UI
+        console.error('Failed to delete session.');
       }
     }
   };

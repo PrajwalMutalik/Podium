@@ -9,14 +9,20 @@ const Register = () => {
   const { name, email, password } = formData;
   const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
+  // Use the environment variable for the backend URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5001/api/auth/register', { name, email, password });
+      // Use the BACKEND_URL variable to make the API call
+      await axios.post(`${BACKEND_URL}/api/auth/register`, { name, email, password });
+      // NOTE: Using a custom modal or message box is recommended instead of alert()
       alert('Registration successful! Please log in.');
       navigate('/login');
     } catch (err) {
       console.error(err.response.data);
+      // NOTE: Using a custom modal or message box is recommended instead of alert()
       alert(err.response.data.msg || 'Registration failed');
     }
   };
@@ -36,4 +42,3 @@ const Register = () => {
 };
 
 export default Register;
-    
