@@ -11,7 +11,7 @@ const UpgradePage = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(`${BASE_URL}/api/payment/verify`, 
+            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/payment/verify`, 
         { transactionId },
         { headers: { 'x-auth-token': token } }
       );

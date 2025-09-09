@@ -10,7 +10,7 @@ const HistoryPage = () => {
     const fetchSessions = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${BASE_URL}/api/sessions`, {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/sessions`, {
           headers: { 'x-auth-token': token },
         });
         setSessions(res.data);
@@ -26,7 +26,7 @@ const HistoryPage = () => {
     if (window.confirm('Are you sure you want to delete this session? This action cannot be undone.')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`${BASE_URL}/api/sessions/${sessionId}`, {
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/sessions/${sessionId}`, {
           headers: { 'x-auth-token': token },
         });
         setSessions(sessions.filter((session) => session._id !== sessionId));
