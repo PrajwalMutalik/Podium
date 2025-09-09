@@ -24,8 +24,8 @@ export const AuthProvider = ({ children }) => {
       return;
     }
     try {
-      // Use a relative path, assuming proxy is configured
-      const res = await axios.get('/api/user/me', {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, ''); // Remove trailing slash if present
+      const res = await axios.get(`${baseUrl}/api/user/me`, {
         headers: { 'x-auth-token': currentToken },
       });
       setUserProfile(res.data); // Store the fetched user profile
