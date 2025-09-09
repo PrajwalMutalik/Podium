@@ -16,21 +16,32 @@ const assemblyClient = new AssemblyAI({ apiKey: process.env.ASSEMBLYAI_API_KEY }
 let genAI = null;
 let model = null;
 
-if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '') {
-  genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
-    generationConfig: {
-      responseMimeType: "application/json",
-    },
-    safetySettings: [
-      {
-        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-        threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
-      },
-    ],
-  });
+try {
+  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '') {
+    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      generationConfig: {
+        responseMimeType: "application/json",
+      },
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        },
+      ],
+    });
+    console.log("✅ Default Gemini model created on startup.");
+  } else {
+    console.warn("⚠️ Warning: GEMINI_API_KEY is not set. Users without a key cannot use this feature.");
+  }
+} catch (error) {
+  console.error("❌ Fatal error creating Gemini model on startup:", error.message);
+  // This will prevent the server from crashing, but the feature will be unavailable.
+  genAI = null;
+  model = null;
 }
+
 
 const upload = multer({ dest: 'uploads/' });
 const DAILY_LIMIT = 10;
