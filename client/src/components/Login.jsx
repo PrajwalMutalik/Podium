@@ -14,12 +14,24 @@ const Login = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, { email, password });
-      login(res.data.token);
-      navigate('/dashboard');
+      const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, ''); // Remove trailing slash if present
+      const res = await axios.post(`${baseUrl}/api/auth/login`, { email, password });
+      
+      if (res.data && res.data.token) {
+        login(res.data.token);
+        navigate('/dashboard');
+      } else {
+        alert('Invalid response from server');
+      }
     } catch (err) {
-      console.error(err.response.data);
-      alert(err.response.data.msg || 'Login failed');
+      console.error('Login error:', err);
+      if (err.response) {
+        alert(err.response.data.msg || 'Login failed');
+      } else if (err.request) {
+        alert('Cannot connect to server. Please check your internet connection.');
+      } else {
+        alert('An error occurred. Please try again.');
+      }
     }
   };
 

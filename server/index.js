@@ -10,15 +10,18 @@ const PORT = process.env.PORT || 5001;
 // --- Middleware ---
 // 1. Configure CORS with specific options
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://podium-seven.vercel.app', 'https://podium-prajwalmutalik.vercel.app'] 
-    : 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
-  credentials: true
-}));
-
-// 2. Enable Express to parse JSON bodies
+  origin: process.env.NODE_ENV === 'production' 
+    ? [
+        'https://podium-seven.vercel.app', 
+        'https://podium-prajwalmutalik.vercel.app',
+        'https://podium-production-e5d1.up.railway.app'
+      ] 
+    : 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
+  credentials: true,
+  exposedHeaders: ['x-auth-token']
+}));// 2. Enable Express to parse JSON bodies
 app.use(express.json());
 
 // --- Database Connection ---
