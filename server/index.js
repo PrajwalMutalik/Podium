@@ -67,14 +67,14 @@ app.get('/health', (req, res) => {
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   // Serve static files from the React app
-  app.use(express.static('client/dist'));
+  app.use(express.static(path.join(__dirname, '../client/dist')));
 
   // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    // Only handle non-API routes
-    if (!req.url.startsWith('/api/')) {
-      res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  app.get('*', (req, res, next) => {
+    if (req.url.startsWith('/api/')) {
+      return next(); // Let API routes be handled by the API handlers
     }
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
 }
 

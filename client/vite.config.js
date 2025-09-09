@@ -8,8 +8,16 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     minify: 'esbuild',
-    // Add base URL configuration
     base: '/',
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        }
+      }
+    },
     rollupOptions: {
       output: {
         manualChunks: (id) => {
