@@ -6,13 +6,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "install:client": "cd client && npm install",
-    "install:server": "cd server && npm install",
-    "postinstall": "npm run install:client && npm run install:server",
-    "build:client": "cd client && npm run build",
-    "build:server": "cd server && npm install",
-    "build": "npm run build:client && npm run build:server",
-    "start": "cd server && node index.js",
-    "dev": "cd server && node index.js"
+    "build": "cd client && npm install && npm run build && cd ../server && npm install",
+    "start": "cd server && node index.js"
   }
 }
