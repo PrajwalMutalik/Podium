@@ -14,10 +14,13 @@ console.log(`Allowed Origins: ${allowedOrigins}`);
 console.log(`Railway's provided PORT: ${process.env.PORT}`);
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://podium-client-ckm5.onrender.com', 'http://localhost:5173']
+    : 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
-  credentials: true
+  credentials: true,
+  exposedHeaders: ['x-auth-token']
 }));
 
 app.use(express.json());
