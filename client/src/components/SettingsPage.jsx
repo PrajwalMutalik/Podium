@@ -91,7 +91,12 @@ const SettingsPage = () => {
       await fetchQuota();
     } catch (error) {
       console.error('Error removing API key:', error);
-      alert('API key removed locally. You may need to refresh to see changes.');
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        alert(error.response.data.msg || 'Error removing API key. Please try again.');
+      } else {
+        alert('API key removed locally. You may need to refresh to see changes.');
+      }
     } finally {
       setIsVerifying(false);
     }
