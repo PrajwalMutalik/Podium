@@ -43,7 +43,8 @@ const Dashboard = () => {
     const fetchSessionStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('/api/sessions', {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
+        const res = await axios.get(`${baseUrl}/api/sessions`, {
           headers: { 'x-auth-token': token },
         });
         

@@ -29,7 +29,8 @@ const SettingsPage = () => {
       // Optionally save to database for persistent storage (with verification)
       if (saveToDatabase) {
         const token = localStorage.getItem('token');
-        const response = await axios.post('/api/user/update-api-key', 
+        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
+        const response = await axios.post(`${baseUrl}/api/user/update-api-key`, 
           { geminiApiKey: apiKey },
           { headers: { 'x-auth-token': token } }
         );
