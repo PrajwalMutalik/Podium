@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [];
 
 // Log the port to verify what Railway is providing
 console.log(`CORS_ORIGIN: ${process.env.CORS_ORIGIN}`);
