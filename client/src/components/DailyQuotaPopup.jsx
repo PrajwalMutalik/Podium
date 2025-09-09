@@ -6,8 +6,7 @@ const DailyQuotaPopup = ({ onClose }) => {
 
   const handleUpgrade = () => {
     // Navigate to the settings/upgrade page when the button is clicked
-    navigate('/settings');
-    onClose(); // Close the popup after navigating
+    navigate('/settings'); 
   };
 
   return (

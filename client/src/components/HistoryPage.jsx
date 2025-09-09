@@ -6,43 +6,33 @@ const HistoryPage = () => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Correct variable name
-  const BACKEND_URL = import.meta.env.VITE_API_BASE_URL;
-
   useEffect(() => {
     const fetchSessions = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${BACKEND_URL}/api/sessions`, {
+        const res = await axios.get('http://localhost:5001/api/sessions', {
           headers: { 'x-auth-token': token },
         });
-
-        // Ensure the response is an array before setting the state
-        if (Array.isArray(res.data)) {
-          setSessions(res.data);
-        } else {
-          setSessions([]); // Set to an empty array if the response is not valid
-        }
+        setSessions(res.data);
       } catch (error) {
         console.error('Error fetching session history:', error);
-        setSessions([]); // Set to an empty array on error
       }
       setLoading(false);
     };
     fetchSessions();
-  }, [BACKEND_URL]);
+  }, []);
 
   const handleDelete = async (sessionId) => {
     if (window.confirm('Are you sure you want to delete this session? This action cannot be undone.')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`${BACKEND_URL}/api/sessions/${sessionId}`, {
+        await axios.delete(`http://localhost:5001/api/sessions/${sessionId}`, {
           headers: { 'x-auth-token': token },
         });
         setSessions(sessions.filter((session) => session._id !== sessionId));
       } catch (error) {
         console.error('Error deleting session:', error);
-        console.error('Failed to delete session.');
+        alert('Failed to delete session.');
       }
     }
   };
@@ -76,12 +66,14 @@ const HistoryPage = () => {
               </p>
               <details className="feedback-details">
                 <summary>Show Feedback & Transcript</summary>
+                {/* vvv THIS IS THE CORRECTED SECTION vvv */}
                 <div className="details-content">
                   <h4>AI Coach Feedback:</h4>
                   <p>{session.aiFeedback}</p>
                   <h4>Your Transcript:</h4>
                   <p>{session.transcript}</p>
                 </div>
+                {/* ^^^ END OF CORRECTED SECTION ^^^ */}
               </details>
             </div>
           ))

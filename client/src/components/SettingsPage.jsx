@@ -9,9 +9,6 @@ const SettingsPage = () => {
   const [apiKey, setApiKey] = useState(userApiKey || '');
   const [saveToDatabase, setSaveToDatabase] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
-  
-  // Use the environment variable for the backend URL
-  const VITE_API_BASE_URL = import.meta.env.VITE_VITE_API_BASE_URL;
 
   // Sync local state with context when userApiKey changes
   useEffect(() => {
@@ -32,7 +29,7 @@ const SettingsPage = () => {
       // Optionally save to database for persistent storage (with verification)
       if (saveToDatabase) {
         const token = localStorage.getItem('token');
-        const response = await axios.post(`${VITE_API_BASE_URL}/api/user/update-api-key`, 
+        const response = await axios.post('/api/user/update-api-key', 
           { geminiApiKey: apiKey },
           { headers: { 'x-auth-token': token } }
         );
@@ -68,7 +65,6 @@ const SettingsPage = () => {
   };
 
   const handleRemoveKey = async () => {
-    // NOTE: Using a custom modal or message box is recommended instead of window.confirm()
     if (!window.confirm('Are you sure you want to remove your API key? You will be limited to 10 requests per day.')) {
       return;
     }
@@ -82,7 +78,7 @@ const SettingsPage = () => {
       
       // Remove from database as well
       const token = localStorage.getItem('token');
-      const response = await axios.post(`${VITE_API_BASE_URL}/api/user/update-api-key`, 
+      const response = await axios.post('/api/user/update-api-key', 
         { geminiApiKey: '' },
         { headers: { 'x-auth-token': token } }
       );

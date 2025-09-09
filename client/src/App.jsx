@@ -15,7 +15,6 @@ import ContactPage from './components/ContactPage';
 import SettingsPage from './components/SettingsPage';
 import ThemeSwitch from './components/ThemeSwitch';
 import Leaderboard from './components/Leaderboard';
-
 // Note: The QuotaProvider is now imported in your main.jsx or equivalent entry file
 // where it can wrap the entire App.
 
@@ -103,16 +102,16 @@ const Navbar = () => {
         {isAuthenticated && (
           <div className="daily-limit-display">
             <span>
-              Daily Limit: {quota.dailyLimit === 'Unlimited' ? 'Unlimited' : `${quota.currentUsage} / ${quota.dailyLimit}`}
+              Daily Limit: {quota.currentUsage} / {quota.dailyLimit}
             </span>
           </div>
         )}
         {isAuthenticated ? (
           <button onClick={handleLogout} className="nav-button" title="Logout">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M16 17L21 12L16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M16 17L21 12L16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
         ) : (
@@ -127,17 +126,17 @@ const Navbar = () => {
 };
 
 const WelcomePage = () => (
-  <div className="glass-container" style={{ maxWidth: '600px', margin: '5rem auto', textAlign: 'center' }}>
+  <div className="glass-container" style={{maxWidth: '600px', margin: '5rem auto', textAlign: 'center'}}>
     <h1>Welcome to Podium</h1>
     <p>Your personal AI-powered interview coach. Sharpen your skills, get instant feedback, and land your dream job. Please register or log in to begin.</p>
   </div>
 );
 
 const Footer = () => (
-  <footer className="footer">
-    <p>Developed by Prajwal & Sandesh</p>
-    <p>&copy; {new Date().getFullYear()} Podium. All Rights Reserved.</p>
-  </footer>
+    <footer className="footer">
+        <p>Developed by Prajwal & Sandesh</p>
+        <p>&copy; {new Date().getFullYear()} Podium. All Rights Reserved.</p>
+    </footer>
 );
 
 export default App;
