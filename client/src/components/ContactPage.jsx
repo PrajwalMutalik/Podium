@@ -17,7 +17,7 @@ const ContactPage = () => {
     e.preventDefault(); 
     setStatus('Sending...');
     try {
-      await axios.post('http://localhost:5001/api/contact', { name, email, message });
+      await axios.post(`${BASE_URL}/api/contact`, { name, email, message });
       setStatus('Message sent successfully!');
       setFormData({ name: '', email: '', message: '' }); 
     } catch (error) {
