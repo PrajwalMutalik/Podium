@@ -1,0 +1,3 @@
+# Render configuration for backend
+build: npm install
+start: npm start

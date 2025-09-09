@@ -1,15 +1,29 @@
 {
-  "name": "full-stack-project",
+  "name": "server",
   "version": "1.0.0",
-  "private": true,
+  "main": "index.js",
+   "scripts": {
+    "start": "node --unhandled-rejections=strict index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "engines": {
     "node": ">=18.0.0"
   },
-  "scripts": {
-    "install:client": "cd client && npm install",
-    "install:server": "cd server && npm install",
-    "build:client": "cd client && npm run build",
-    "build": "npm run install:client && npm run install:server && npm run build:client",
-    "start": "cd server && node index.js"
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "assemblyai": "^4.14.2",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.18.0",
+    "mongoose": "^8.17.0",
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.5"
   }
 }
