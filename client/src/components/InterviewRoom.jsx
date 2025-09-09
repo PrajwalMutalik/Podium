@@ -29,7 +29,7 @@ const InterviewRoom = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5001/api/questions/random', {
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/questions/random`, {
         headers: { 'x-auth-token': token },
         params: { role, category },
       });
@@ -88,7 +88,7 @@ const InterviewRoom = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:5001/api/interview/submit', formData, {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/interview/submit`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'x-auth-token': token,
