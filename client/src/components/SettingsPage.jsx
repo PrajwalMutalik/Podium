@@ -79,7 +79,8 @@ const SettingsPage = () => {
       
       // Remove from database as well
       const token = localStorage.getItem('token');
-      const response = await axios.post('/api/user/update-api-key', 
+      const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
+      const response = await axios.post(`${baseUrl}/api/user/update-api-key`, 
         { geminiApiKey: '' },
         { headers: { 'x-auth-token': token } }
       );

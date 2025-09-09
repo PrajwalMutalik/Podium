@@ -64,6 +64,20 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from the React app
+  app.use(express.static('client/dist'));
+
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    // Only handle non-API routes
+    if (!req.url.startsWith('/api/')) {
+      res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+    }
+  });
+}
+
 // --- Start Server ---
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);

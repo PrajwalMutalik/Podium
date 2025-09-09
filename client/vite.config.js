@@ -8,6 +8,8 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     minify: 'esbuild',
+    // Add base URL configuration
+    base: '/',
     rollupOptions: {
       output: {
         manualChunks: (id) => {
