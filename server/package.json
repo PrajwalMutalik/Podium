@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node index.js",
+      "build": "npm install --prefix server",
+    "start": "npm run --prefix server start"
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {

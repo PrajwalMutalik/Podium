@@ -8,8 +8,16 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 // --- Middleware ---
-// 1. Enable CORS for all API requests
-app.use(cors());
+// 1. Configure CORS with specific options
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://podium-seven.vercel.app', 'https://podium-prajwalmutalik.vercel.app'] 
+    : 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
+  credentials: true
+}));
+
 // 2. Enable Express to parse JSON bodies
 app.use(express.json());
 
@@ -33,12 +41,12 @@ app.use('/api/leaderboard', require('./routes/leaderboard'));
 // It tells Express to serve your compiled React app in production.
 if (process.env.NODE_ENV === 'production') {
   // Set the static folder where your React build is located
-  app.use(express.static('client/build'));
+  app.use(express.static(path.join(__dirname, '../client/dist')));
 
   // This "catch-all" route handles any request that doesn't match an API route.
   // It sends back the main index.html file, allowing React Router to take over.
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+  app.get('/*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
 }
 
