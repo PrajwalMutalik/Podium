@@ -1,3 +1,32 @@
-# Render configuration for backend
-build: npm install
-start: npm start
+services:
+  # Backend API service
+  - type: web
+    name: podium-api
+    env: node
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ASSEMBLYAI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+
+  # Frontend static site
+  - type: web
+    name: podium-client
+    env: static
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: client/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://podium-api.onrender.com # Will update this after backend deployment
