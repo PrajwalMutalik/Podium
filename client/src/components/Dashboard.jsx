@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // 1. Import useAuth
+import { useAuth } from '../context/AuthContext';
 import { useQuota } from '../context/QuotaContext';
 import Spinner from './Spinner';
 import './Dashboard.css';
@@ -26,7 +26,6 @@ const Badge = ({ name }) => {
 };
 
 const Dashboard = () => {
-  // 2. Get userProfile from the AuthContext
   const { userProfile, userApiKey } = useAuth();
   const { quota, isLoading: quotaLoading } = useQuota();
   const navigate = useNavigate();
@@ -39,40 +38,40 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   // Use the environment variable for the backend URL
-  const VITE_API_BASE_URL = import.meta.env.VITE_VITE_API_BASE_URL;
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+  const fetchSessionStats = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${BACKEND_URL}/api/sessions`, {
+        headers: { 'x-auth-token': token },
+      });
+      
+      const sessions = res.data;
+      if (Array.isArray(sessions) && sessions.length > 0) {
+        const totalWpm = sessions.reduce((sum, s) => sum + (s.wpm || 0), 0);
+        const totalFillers = sessions.reduce((sum, s) => sum + (s.fillerWordCount || 0), 0);
+        setStats({
+          totalSessions: sessions.length,
+          avgWpm: Math.round(totalWpm / sessions.length),
+          avgFillers: (totalFillers / sessions.length).toFixed(1),
+        });
+      } else {
+        // Handle cases where no sessions are returned
+        setStats({ totalSessions: 0, avgWpm: 0, avgFillers: 0 });
+      }
+    } catch (error) {
+      console.error('Error fetching session stats:', error);
+    }
+    setLoading(false);
+  }, [BACKEND_URL]);
 
   useEffect(() => {
-    // This useEffect now only fetches session data. Profile data comes from the context.
-    const fetchSessionStats = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`${VITE_API_BASE_URL}/api/sessions`, {
-          headers: { 'x-auth-token': token },
-        });
-
-        const sessions = res.data;
-        if (sessions.length > 0) {
-          const totalWpm = sessions.reduce((sum, s) => sum + s.wpm, 0);
-          const totalFillers = sessions.reduce((sum, s) => sum + s.fillerWordCount, 0);
-          setStats({
-            totalSessions: sessions.length,
-            avgWpm: Math.round(totalWpm / sessions.length),
-            avgFillers: (totalFillers / sessions.length).toFixed(1),
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching session stats:', error);
-      }
-      // We only stop loading once the session stats are also fetched.
-      setLoading(false);
-    };
-
-    if (userProfile) { // Only fetch session stats if the user profile is loaded
-        fetchSessionStats();
+    if (userProfile) {
+      fetchSessionStats();
     }
-  }, [userProfile]); // Re-run if userProfile changes
+  }, [userProfile, fetchSessionStats]);
 
-  // 3. The main loading condition now depends on userProfile from the context.
   if (!userProfile || loading) {
     return <Spinner text="Loading Dashboard..." />;
   }
@@ -81,7 +80,6 @@ const Dashboard = () => {
     <div className="dashboard-container">
       <h1>Your Dashboard</h1>
       <div className="stats-grid">
-        {/* Gamification Stats are now read from userProfile */}
         <div className="stat-card glass-container">
           <h3>Total Points</h3>
           <p>{userProfile.points} XP</p>
@@ -90,7 +88,6 @@ const Dashboard = () => {
           <h3>Practice Streak</h3>
           <p>{userProfile.currentStreak} Days 🔥</p>
         </div>
-        {/* API Usage Quota */}
         <div className="stat-card glass-container">
           <h3>Daily Usage</h3>
           {quotaLoading ? (
@@ -101,7 +98,6 @@ const Dashboard = () => {
             <p>{quota.currentUsage} / {quota.dailyLimit}</p>
           )}
         </div>
-        {/* Existing Stats */}
         <div className="stat-card glass-container">
           <h3>Total Sessions</h3>
           <p>{stats.totalSessions}</p>
@@ -115,8 +111,6 @@ const Dashboard = () => {
           <p>{stats.avgFillers}</p>
         </div>
       </div>
-
-      {/* Badges Section now reads from userProfile */}
       <div className="badges-section glass-container">
         <h2>Your Badges</h2>
         {userProfile.badges && userProfile.badges.length > 0 ? (
@@ -129,7 +123,6 @@ const Dashboard = () => {
           <p>Complete a session to earn your first badge!</p>
         )}
       </div>
-
       <div className="actions-grid">
         <div className="action-card glass-container" onClick={() => navigate('/practice')}>
           <h2>Start New Session</h2>
