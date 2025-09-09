@@ -5,6 +5,8 @@
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
+  align-items: center;
+  width: 100%;
 }
 
 .dashboard-header {
@@ -32,6 +34,9 @@
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
   margin-bottom: 1rem;
+  width: 100%;
+  justify-content: center;
+  align-items: stretch;
 }
 
 .stat-card {
@@ -80,6 +85,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 60px;  /* Ensure consistent height for numbers */
 }
 
 .stat-card .stat-subtitle {
@@ -93,9 +99,12 @@
   padding: 2rem;
   border-radius: 12px;
   margin: 2rem 0;
-  justify-content: center;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .badges-section h2 {
@@ -125,6 +134,9 @@
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1.5rem;
   justify-items: center;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .badge {
@@ -168,6 +180,9 @@
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
   margin-top: 1rem;
+  width: 100%;
+  justify-content: center;
+  align-items: stretch;
 }
 
 .action-card {
