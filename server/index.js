@@ -1,15 +1,33 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path'); // Import the 'path' module
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+// --- CORS Configuration ---
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+];
+
+// Add the deployed frontend URL if it exists
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
+const corsOptions = {
+  // Directlhy pass the array of allowed origins to the middleware.
+  // This is a more robust and reliable way to handle the configuration.
+  origin: allowedOrigins,
+  optionsSuccessStatus: 200,
+};
+
 // --- Middleware ---
-// 1. Enable CORS for all API requests
-app.use(cors());
+// 1. Enable CORS with the specific options
+app.use(cors(corsOptions));
 // 2. Enable Express to parse JSON bodies
 app.use(express.json());
 
@@ -19,26 +37,19 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch(err => console.error('MongoDB connection error:', err));
 
 // --- API Routes ---
-// All of your API endpoints are registered here.
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/questions', require('./routes/questions'));
 app.use('/api/interview', require('./routes/interview'));
 app.use('/api/sessions', require('./routes/sessions'));
 app.use('/api/contact', require('./routes/contact'));
-app.use('/api/user', require('./routes/user')); 
+app.use('/api/user', require('./routes/user'));
 app.use('/api/leaderboard', require('./routes/leaderboard'));
 
 // --- Serve Static Frontend ---
-// This section must come AFTER your API routes.
-// It tells Express to serve your compiled React app in production.
 if (process.env.NODE_ENV === 'production') {
-  // Set the static folder where your React build is located
-  app.use(express.static('client/build'));
-
-  // This "catch-all" route handles any request that doesn't match an API route.
-  // It sends back the main index.html file, allowing React Router to take over.
+  app.use(express.static(path.join(__dirname, '..', '..', 'client', 'build')));
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', '..', 'client', 'build', 'index.html'));
   });
 }
 
