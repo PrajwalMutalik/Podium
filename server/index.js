@@ -10,12 +10,12 @@ const PORT = process.env.PORT || 5001;
 // --- Middleware ---
 // 1. Configure CORS with specific options
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://podium-seven.vercel.app', 'https://podium-prajwalmutalik.vercel.app'] 
-    : 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
-  credentials: true
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://podium-seven.vercel.app', 'https://podium-prajwalmutalik.vercel.app'] 
+    : 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
+  credentials: true
 }));
 
 // 2. Enable Express to parse JSON bodies
@@ -23,8 +23,8 @@ app.use(express.json());
 
 // --- Database Connection ---
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Successfully connected to MongoDB.'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => console.log('Successfully connected to MongoDB.'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // --- API Routes ---
 // All of your API endpoints are registered here.
@@ -40,17 +40,18 @@ app.use('/api/leaderboard', require('./routes/leaderboard'));
 // This section must come AFTER your API routes.
 // It tells Express to serve your compiled React app in production.
 if (process.env.NODE_ENV === 'production') {
-  // Set the static folder where your React build is located
-  app.use(express.static(path.join(__dirname, '../client/dist')));
+  // Set the static folder where your React build is located
+  app.use(express.static(path.join(__dirname, '../client/dist')));
 
-  // This "catch-all" route handles any request that doesn't match an API route.
-  // It sends back the main index.html file, allowing React Router to take over.
-  app.get('/*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-  });
+  // This "catch-all" route handles any request that doesn't match an API route.
+  // It sends back the main index.html file, allowing React Router to take over.
+  // Corrected for Express v5 to use a named wildcard.
+  app.get('/*path', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  });
 }
 
 // --- Start Server ---
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
