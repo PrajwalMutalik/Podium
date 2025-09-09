@@ -19,14 +19,9 @@ if (process.env.FRONTEND_URL) {
 }
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    // Check if the origin is in the allowed list or if it's a same-origin request (origin is undefined)
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  // Directlhy pass the array of allowed origins to the middleware.
+  // This is a more robust and reliable way to handle the configuration.
+  origin: allowedOrigins,
   optionsSuccessStatus: 200,
 };
 
