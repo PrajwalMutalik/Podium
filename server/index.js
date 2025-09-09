@@ -39,7 +39,8 @@ app.use('/api/leaderboard', require('./routes/leaderboard'));
 // --- Serve Static Frontend ---
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
-  app.get('/*', (req, res) => {
+  // Corrected the catch-all route for better compatibility with Express v5
+  app.get(/(.*)/, (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
 }
