@@ -13,10 +13,23 @@ console.log(`CORS_ORIGIN: ${process.env.CORS_ORIGIN}`);
 console.log(`Allowed Origins: ${allowedOrigins}`);
 console.log(`Railway's provided PORT: ${process.env.PORT}`);
 
+// CORS middleware with specific origin handling
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://podium-client-ckm5.onrender.com', 'http://localhost:5173']
-    : 'http://localhost:5173',
+  origin: function(origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if(!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'https://podium-client-ckm5.onrender.com',
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ];
+    
+    if(allowedOrigins.indexOf(origin) === -1){
+      return callback(null, false);
+    }
+    return callback(null, true);
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
   credentials: true,
@@ -48,14 +61,10 @@ app.use('/api/contact', require('./routes/contact'));
 app.use('/api/user', require('./routes/user'));
 app.use('/api/leaderboard', require('./routes/leaderboard'));
 
-// --- Serve Static Frontend ---
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/dist')));
-  // Corrected the catch-all route for better compatibility with Express v5
-  app.get(/(.*)/, (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-  });
-}
+// Add a health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 // --- Start Server ---
 app.listen(PORT, '0.0.0.0', () => {
