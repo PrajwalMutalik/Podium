@@ -13,28 +13,23 @@ console.log(`CORS_ORIGIN: ${process.env.CORS_ORIGIN}`);
 console.log(`Allowed Origins: ${allowedOrigins}`);
 console.log(`Railway's provided PORT: ${process.env.PORT}`);
 
-// CORS middleware with specific origin handling
-app.use(cors({
-  origin: function(origin, callback) {
-    // allow requests with no origin (like mobile apps or curl requests)
-    if(!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      'https://podium-client-ckm5.onrender.com',
-      'http://localhost:5173',
-      'http://localhost:3000'
-    ];
-    
-    if(allowedOrigins.indexOf(origin) === -1){
-      return callback(null, false);
-    }
-    return callback(null, true);
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
-  credentials: true,
-  exposedHeaders: ['x-auth-token']
-}));
+// Enable CORS for all routes
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://podium-client-ckm5.onrender.com');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-auth-token');
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Expose-Headers', 'x-auth-token');
+  
+  // Handle OPTIONS method
+  if (req.method === 'OPTIONS') {
+    return res.status(200).json({
+      body: "OK"
+    });
+  }
+  
+  next();
+});
 
 app.use(express.json());
 
