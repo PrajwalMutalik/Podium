@@ -69,7 +69,9 @@ const HistoryPage = () => {
                 {/* vvv THIS IS THE CORRECTED SECTION vvv */}
                 <div className="details-content">
                   <h4>AI Coach Feedback:</h4>
-                  <p>{session.aiFeedback}</p>
+                  <p>{session.feedback}</p>
+                  <h4>Areas for Improvement:</h4>
+                  <p>{session.improvements}</p>
                   <h4>Your Transcript:</h4>
                   <p>{session.transcript}</p>
                 </div>
