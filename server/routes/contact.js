@@ -2,6 +2,26 @@ const express = require('express');
 const router = express.Router();
 const nodemailer = require('nodemailer');
 
+// Create reusable transporter
+let transporter = null;
+
+const initializeTransporter = () => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error('Email configuration missing');
+    return false;
+  }
+  
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+  
+  return true;
+};
+
 router.post('/', async (req, res) => {
   const { name, email, message } = req.body;
 
@@ -19,30 +39,28 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // Debug: Log environment variables (careful not to log actual values in production)
-    console.log('Email Config Check:');
-    console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
-    console.log('EMAIL_PASS exists:', !!process.env.EMAIL_PASS);
-    console.log('EMAIL_USER length:', process.env.EMAIL_USER?.length);
-    console.log('EMAIL_PASS length:', process.env.EMAIL_PASS?.length);
+    console.log('Starting contact form submission process...');
 
-    // Verify environment variables
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.error('Missing email configuration');
-      return res.status(500).json({ msg: 'Server configuration error. Please try again later.' });
+    // Initialize email transporter if not already initialized
+    if (!transporter && !initializeTransporter()) {
+      console.error('Failed to initialize email transporter');
+      return res.status(500).json({ 
+        msg: 'Email service not configured properly',
+        detail: 'Missing email configuration'
+      });
     }
 
-    console.log('Creating nodemailer transport...');
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      debug: true // Enable debug logging
-    });
+    console.log('Verifying email transporter...');
+    try {
+      await transporter.verify();
+      console.log('Email transporter verified successfully');
+    } catch (verifyError) {
+      console.error('Transporter verification failed:', verifyError);
+      return res.status(500).json({ 
+        msg: 'Email service verification failed',
+        detail: verifyError.message
+      });
+    }
 
     // Verify transporter
     try {

@@ -21,18 +21,40 @@ const ContactPage = () => {
     setStatus({ type: 'pending', message: 'Sending...' });
     
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/contact`, 
+      console.log('Attempting to send message...');
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/contact`, 
         { name, email, message },
-        { headers: { 'Content-Type': 'application/json' }}
+        { 
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 10000 // 10 second timeout
+        }
       );
       
+      console.log('Server response:', response.data);
       setStatus({ type: 'success', message: 'Message sent successfully! We will get back to you soon.' });
       setFormData({ name: '', email: '', message: '' });
     } catch (error) {
-      console.error('Contact form error:', error);
+      console.error('Contact form error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText
+      });
+      
+      let errorMessage = 'Failed to send message. Please try again later.';
+      
+      if (error.response?.data?.detail) {
+        errorMessage = `Error: ${error.response.data.detail}`;
+      } else if (error.response?.data?.msg) {
+        errorMessage = error.response.data.msg;
+      } else if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+      
       setStatus({ 
         type: 'error', 
-        message: error.response?.data?.msg || 'Failed to send message. Please try again later.'
+        message: errorMessage
       });
     } finally {
       setIsSubmitting(false);
