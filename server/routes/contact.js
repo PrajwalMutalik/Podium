@@ -19,22 +19,39 @@ router.post('/', async (req, res) => {
   }
 
   try {
+    // Debug: Log environment variables (careful not to log actual values in production)
+    console.log('Email Config Check:');
+    console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
+    console.log('EMAIL_PASS exists:', !!process.env.EMAIL_PASS);
+    console.log('EMAIL_USER length:', process.env.EMAIL_USER?.length);
+    console.log('EMAIL_PASS length:', process.env.EMAIL_PASS?.length);
+
     // Verify environment variables
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       console.error('Missing email configuration');
       return res.status(500).json({ msg: 'Server configuration error. Please try again later.' });
     }
 
+    console.log('Creating nodemailer transport...');
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      debug: true // Enable debug logging
     });
 
     // Verify transporter
-    await transporter.verify();
+    try {
+      await transporter.verify();
+      console.log('Email transporter verified successfully');
+    } catch (verifyError) {
+      console.error('Transporter verification failed:', verifyError);
+      throw new Error('Email service configuration error');
+    }
 
     const mailOptions = {
       from: `Podium App <${process.env.EMAIL_USER}>`,
@@ -74,16 +91,36 @@ router.post('/', async (req, res) => {
 
     res.status(200).json({ msg: 'Message sent successfully! Check your email for confirmation.' });
   } catch (err) {
-    console.error('Contact form error:', err);
+    console.error('Contact form detailed error:', {
+      name: err.name,
+      message: err.message,
+      code: err.code,
+      command: err.command,
+      stack: err.stack
+    });
     
     // Send appropriate error messages
     if (err.code === 'EAUTH') {
-      return res.status(500).json({ msg: 'Email authentication failed. Please try again later.' });
+      return res.status(500).json({ 
+        msg: 'Email authentication failed. Please check the email configuration.',
+        detail: err.message 
+      });
     } else if (err.code === 'ETIMEDOUT') {
-      return res.status(500).json({ msg: 'Request timed out. Please try again.' });
+      return res.status(500).json({ 
+        msg: 'Request timed out. Please try again.',
+        detail: err.message 
+      });
+    } else if (err.code === 'ESOCKET') {
+      return res.status(500).json({ 
+        msg: 'Network connection error. Please check your internet connection.',
+        detail: err.message 
+      });
     }
     
-    res.status(500).json({ msg: 'Failed to send message. Please try again later.' });
+    res.status(500).json({ 
+      msg: 'Failed to send message. Please try again later.',
+      detail: err.message
+    });
   }
 });
 
