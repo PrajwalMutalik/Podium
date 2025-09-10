@@ -130,7 +130,7 @@ const SettingsPage = () => {
             Save to my account (persistent across sessions)
           </label>
           <small>
-            If unchecked, the key will only be saved locally for this session.
+            Please check the box if you want to save the key to your account. 
           </small>
         </div>
         <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
