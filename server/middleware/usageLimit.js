@@ -54,8 +54,16 @@ const usageLimit = async (req, res, next) => {
         console.log('✅ UNLIMITED USAGE - Valid custom API key verified');
         return next(); // Valid API key = unlimited usage
       } else {
-        console.log('❌ Invalid API key detected, applying daily limit');
-        // Continue to daily limit logic below
+        console.log('❌ Invalid custom API key provided');
+        // If user provided a custom API key but it's invalid, return error
+        if (hasRequestKey) {
+          return res.status(400).json({ 
+            msg: 'Invalid API key provided. Please check your Gemini API key and try again.',
+            error: 'Custom API key verification failed'
+          });
+        }
+        // If stored key is invalid, continue to server API key logic
+        console.log('⚠️ Stored API key is invalid, falling back to server API key');
       }
     }
 

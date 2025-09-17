@@ -109,15 +109,22 @@ router.post('/submit', [auth, upload.single('audio'), usageLimit], async (req, r
     const userStoredApiKey = user ? user.geminiApiKey : null;
     
     console.log("User stored API key:", userStoredApiKey ? `${userStoredApiKey.substring(0, 10)}...` : 'Not stored');
+    console.log("Request API key provided:", geminiApiKey ? `${geminiApiKey.substring(0, 10)}...` : 'Not provided');
     
-    // Use custom API key if provided, otherwise check stored key, otherwise use default model
+    // PRIORITY: Always prioritize user-provided API keys over server API key
+    // 1. Use request API key if provided
+    // 2. Use stored user API key if available
+    // 3. Fall back to server API key only if no user key is available
+    
     let aiModel = null;
     let apiKeyToUse = geminiApiKey || userStoredApiKey;
+    let usingUserApiKey = false;
     
     if (apiKeyToUse && apiKeyToUse.trim() !== '') {
-      console.log("Using custom/stored Gemini API key for this request");
+      console.log("🔑 Using user-provided Gemini API key for this request");
       console.log("Final API key starts with:", apiKeyToUse.trim().substring(0, 10) + "...");
       console.log("Final API key length:", apiKeyToUse.trim().length);
+      usingUserApiKey = true;
       
       try {
         const customGenAI = new GoogleGenerativeAI(apiKeyToUse.trim());
@@ -142,8 +149,9 @@ router.post('/submit', [auth, upload.single('audio'), usageLimit], async (req, r
         });
       }
     } else if (model) {
-      console.log("Using default server API key");
+      console.log("🏢 Using default server API key (no user API key provided)");
       aiModel = model;
+      usingUserApiKey = false;
     } else {
       console.log("❌ No API key available - neither user nor server");
       return res.status(400).json({ 
