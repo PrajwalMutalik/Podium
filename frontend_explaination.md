@@ -187,7 +187,3 @@
 - Protected routes.
 - Clean, modern UI.
 - Accessibility and responsiveness.
-
----
-
-If you want even more detail on any specific part, just ask!
