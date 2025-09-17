@@ -1,0 +1,11 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install && npm run build"
+
+[deploy]
+startCommand = "npm run preview"
+restartPolicyType = "ON_FAILURE"
+numReplicas = 1
+
+[phases.setup]
+nixPkgs = ["nodejs"]

@@ -10,7 +10,7 @@ const HistoryPage = () => {
     const fetchSessions = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:5001/api/sessions', {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/sessions`, {
           headers: { 'x-auth-token': token },
         });
         setSessions(res.data);
@@ -26,7 +26,7 @@ const HistoryPage = () => {
     if (window.confirm('Are you sure you want to delete this session? This action cannot be undone.')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5001/api/sessions/${sessionId}`, {
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/sessions/${sessionId}`, {
           headers: { 'x-auth-token': token },
         });
         setSessions(sessions.filter((session) => session._id !== sessionId));
@@ -69,7 +69,9 @@ const HistoryPage = () => {
                 {/* vvv THIS IS THE CORRECTED SECTION vvv */}
                 <div className="details-content">
                   <h4>AI Coach Feedback:</h4>
-                  <p>{session.aiFeedback}</p>
+                  <p>{session.feedback}</p>
+                  <h4>Areas for Improvement:</h4>
+                  <p>{session.improvements}</p>
                   <h4>Your Transcript:</h4>
                   <p>{session.transcript}</p>
                 </div>

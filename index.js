@@ -13,26 +13,12 @@ console.log(`CORS_ORIGIN: ${process.env.CORS_ORIGIN}`);
 console.log(`Allowed Origins: ${allowedOrigins}`);
 console.log(`Railway's provided PORT: ${process.env.PORT}`);
 
-// Enable CORS for all routes
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-auth-token');
-  res.header('Access-Control-Allow-Credentials', true);
-  res.header('Access-Control-Expose-Headers', 'x-auth-token');
-  
-  // Handle OPTIONS method
-  if (req.method === 'OPTIONS') {
-    return res.status(200).json({
-      body: "OK"
-    });
-  }
-  
-  next();
-});
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
+  credentials: true
+}));
 
 app.use(express.json());
 
@@ -50,7 +36,7 @@ const connectDB = async () => {
 
 connectDB();
 
-// --- API Routes ok ---
+// --- API Routes ---
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/questions', require('./routes/questions'));
 app.use('/api/interview', require('./routes/interview'));
@@ -59,21 +45,11 @@ app.use('/api/contact', require('./routes/contact'));
 app.use('/api/user', require('./routes/user'));
 app.use('/api/leaderboard', require('./routes/leaderboard'));
 
-// Add a health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
-
-// Serve static files in production
+// --- Serve Static Frontend ---
 if (process.env.NODE_ENV === 'production') {
-  // Serve static files from the React app
   app.use(express.static(path.join(__dirname, '../client/dist')));
-
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res, next) => {
-    if (req.url.startsWith('/api/')) {
-      return next(); // Let API routes be handled by the API handlers
-    }
+  // Corrected the catch-all route for better compatibility with Express v5
+  app.get(/(.*)/, (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
 }

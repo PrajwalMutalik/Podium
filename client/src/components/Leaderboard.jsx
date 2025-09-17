@@ -99,19 +99,14 @@ const Leaderboard = () => {
     const fetchLeaderboard = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('/api/leaderboard', {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
+        const res = await axios.get(`${baseUrl}/api/leaderboard`, {
           headers: { 'x-auth-token': token },
         });
         setLeaderboard(res.data);
       } catch (error) {
         console.error('Error fetching leaderboard:', error);
-        // Add mock data for previewing in case API fails
-        setLeaderboard([
-          { _id: '1', name: 'Alice', points: 1250 },
-          { _id: '2', name: 'Bob', points: 1100 },
-          { _id: '3', name: 'Charlie', points: 980 },
-          { _id: '4', name: 'Diana', points: 850 },
-        ]);
+        setLeaderboard([]); // Empty array instead of mock data
       }
       setLoading(false);
     };

@@ -43,7 +43,8 @@ const Dashboard = () => {
     const fetchSessionStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('/api/sessions', {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
+        const res = await axios.get(`${baseUrl}/api/sessions`, {
           headers: { 'x-auth-token': token },
         });
         
@@ -76,46 +77,52 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <h1>Your Dashboard</h1>
+      <div className="dashboard-header">
+        <h1>Welcome Back!</h1>
+        <p>Track your progress and continue improving your interview skills</p>
+      </div>
+      
       <div className="stats-grid">
-        {/* Gamification Stats are now read from userProfile */}
         <div className="stat-card glass-container">
           <h3>Total Points</h3>
-          <p>{userProfile.points} XP</p>
+          <p>{userProfile.points}</p>
+          <div className="stat-subtitle">XP Earned</div>
         </div>
         <div className="stat-card glass-container">
           <h3>Practice Streak</h3>
-          <p>{userProfile.currentStreak} Days 🔥</p>
+          <p>{userProfile.currentStreak} <span role="img" aria-label="fire">🔥</span></p>
+          <div className="stat-subtitle">Days in a Row</div>
         </div>
-        {/* API Usage Quota */}
         <div className="stat-card glass-container">
           <h3>Daily Usage</h3>
           {quotaLoading ? (
             <p>Loading...</p>
           ) : userApiKey ? (
-            <p>Unlimited ♾️</p>
+            <p><span role="img" aria-label="unlimited">♾️</span></p>
           ) : (
-            <p>{quota.currentUsage} / {quota.dailyLimit}</p>
+            <p>{quota.currentUsage}/{quota.dailyLimit}</p>
           )}
+          <div className="stat-subtitle">Available Sessions</div>
         </div>
-        {/* Existing Stats */}
         <div className="stat-card glass-container">
           <h3>Total Sessions</h3>
           <p>{stats.totalSessions}</p>
+          <div className="stat-subtitle">Interviews Completed</div>
         </div>
         <div className="stat-card glass-container">
           <h3>Average Pace</h3>
-          <p>{stats.avgWpm} WPM</p>
+          <p>{stats.avgWpm}</p>
+          <div className="stat-subtitle">Words per Minute</div>
         </div>
         <div className="stat-card glass-container">
-          <h3>Avg. Filler Words</h3>
+          <h3>Filler Words</h3>
           <p>{stats.avgFillers}</p>
+          <div className="stat-subtitle">Average per Session</div>
         </div>
       </div>
 
-      {/* Badges Section now reads from userProfile */}
       <div className="badges-section glass-container">
-        <h2>Your Badges</h2>
+        <h2>Your Achievements</h2>
         {userProfile.badges && userProfile.badges.length > 0 ? (
           <div className="badges-grid">
             {userProfile.badges.map(badgeName => (
@@ -123,22 +130,25 @@ const Dashboard = () => {
             ))}
           </div>
         ) : (
-          <p>Complete a session to earn your first badge!</p>
+          <p className="empty-badges">Complete your first session to earn badges! 🏆</p>
         )}
       </div>
 
       <div className="actions-grid">
         <div className="action-card glass-container" onClick={() => navigate('/practice')}>
-          <h2>Start New Session</h2>
-          <p>Begin a new practice interview with a random question.</p>
+          <span className="action-card-icon">🎯</span>
+          <h2>Start Practice</h2>
+          <p>Begin a new interview session with AI-powered feedback</p>
         </div>
         <div className="action-card glass-container" onClick={() => navigate('/history')}>
-          <h2>View Full History</h2>
-          <p>Review detailed feedback from all your past sessions.</p>
+          <span className="action-card-icon">📊</span>
+          <h2>View History</h2>
+          <p>Review your past sessions and track your improvement</p>
         </div>
         <div className="action-card glass-container" onClick={() => navigate('/leaderboard')}>
-          <h2>View Leaderboard</h2>
-          <p>See how you stack up against other top performers.</p>
+          <span className="action-card-icon">🏆</span>
+          <h2>Leaderboard</h2>
+          <p>Compare your progress with other top performers</p>
         </div>
       </div>
     </div>

@@ -21,7 +21,8 @@ export const QuotaProvider = ({ children }) => {
 
     try {
       setIsLoading(true);
-      const response = await fetch('/api/interview/check-quota', {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, ''); // Remove trailing slash if present
+      const response = await fetch(`${baseUrl}/api/interview/check-quota`, {
         headers: {
           'x-auth-token': token,
         },

@@ -29,7 +29,8 @@ const SettingsPage = () => {
       // Optionally save to database for persistent storage (with verification)
       if (saveToDatabase) {
         const token = localStorage.getItem('token');
-        const response = await axios.post('/api/user/update-api-key', 
+        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
+        const response = await axios.post(`${baseUrl}/api/user/update-api-key`, 
           { geminiApiKey: apiKey },
           { headers: { 'x-auth-token': token } }
         );
@@ -78,7 +79,8 @@ const SettingsPage = () => {
       
       // Remove from database as well
       const token = localStorage.getItem('token');
-      const response = await axios.post('/api/user/update-api-key', 
+      const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
+      const response = await axios.post(`${baseUrl}/api/user/update-api-key`, 
         { geminiApiKey: '' },
         { headers: { 'x-auth-token': token } }
       );
@@ -89,7 +91,12 @@ const SettingsPage = () => {
       await fetchQuota();
     } catch (error) {
       console.error('Error removing API key:', error);
-      alert('API key removed locally. You may need to refresh to see changes.');
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        alert(error.response.data.msg || 'Error removing API key. Please try again.');
+      } else {
+        alert('API key removed locally. You may need to refresh to see changes.');
+      }
     } finally {
       setIsVerifying(false);
     }
@@ -123,7 +130,7 @@ const SettingsPage = () => {
             Save to my account (persistent across sessions)
           </label>
           <small>
-            If unchecked, the key will only be saved locally for this session.
+            Please check the box if you want to save the key to your account. 
           </small>
         </div>
         <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
