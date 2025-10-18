@@ -1,4 +1,4 @@
-# 🎯 Podium - AI-Powered Interview Coach https://podium-client-ckm5.onrender.com/login
+# 🎯 Podium - AI-Powered Interview Coach 
 
 <div align="center">
 
