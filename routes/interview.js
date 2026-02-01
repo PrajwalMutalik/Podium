@@ -119,26 +119,60 @@ router.get('/debug-ai', async (req, res) => {
     }
 
     const debugGenAI = new GoogleGenerativeAI(apiKey);
-    const debugModel = debugGenAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    console.log("🔍 Testing Gemini API connection...");
-    const result = await debugModel.generateContent("Test connection. Respond with 'OK'.");
-    const response = await result.response;
-    const text = response.text();
+    // Models to test in order of preference
+    const modelsToTry = [
+      'gemini-1.5-flash',
+      'gemini-1.5-flash-001',
+      'gemini-pro',
+      'gemini-1.0-pro'
+    ];
 
-    res.json({
-      status: 'success',
-      message: 'Gemini API is working correctly.',
-      model: 'gemini-1.5-flash',
-      response: text
-    });
+    let successModel = null;
+    let successResponse = null;
+    let errors = [];
+
+    console.log("🔍 Testing Gemini API connection with multiple models...");
+
+    for (const modelName of modelsToTry) {
+      try {
+        console.log(`Testing model: ${modelName}...`);
+        const debugModel = debugGenAI.getGenerativeModel({ model: modelName });
+        const result = await debugModel.generateContent("Test.");
+        const response = await result.response;
+        const text = response.text();
+
+        successModel = modelName;
+        successResponse = text;
+        break; // Stop at first success
+      } catch (err) {
+        console.warn(`❌ Model ${modelName} failed:`, err.message);
+        errors.push({ model: modelName, error: err.message.split('[')[0] }); // Keep error brief
+      }
+    }
+
+    if (successModel) {
+      res.json({
+        status: 'success',
+        message: 'Gemini API is working!',
+        workingModel: successModel,
+        response: successResponse
+      });
+    } else {
+      res.status(500).json({
+        status: 'error',
+        message: 'All Gemini models failed.',
+        errors: errors,
+        tip: "If 404s, ensure 'Generative Language API' is enabled in Google Cloud Console."
+      });
+    }
+
   } catch (error) {
     console.error("❌ Gemini API Debug Error:", error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to connect to Gemini API.',
-      errorDetails: error.message,
-      tip: "Check if 'Generative Language API' is enabled in Google Cloud Console and if the API Key has IP restrictions."
+      message: 'Unexpected error connecting to Gemini API.',
+      errorDetails: error.message
     });
   }
 });
