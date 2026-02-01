@@ -20,8 +20,27 @@ let model = null;
 try {
   if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '') {
     genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+    // DEBUG: List available models
+    // This helps us see what the API key actually has access to
+    /*
+    async function listModels() {
+      try {
+        // Note: verify if listModels exists or use a simple test
+        console.log("Attempting to verify Gemini connection...");
+        model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+        const result = await model.generateContent("Hello");
+        console.log("✅ Gemini-pro connection test successful:", result.response.text());
+      } catch (e) {
+        console.log("❌ Gemini connection test failed:", e.message);
+      }
+    }
+    listModels();
+    */
+
+    // Fallback to gemini-pro which is widely available
     model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash-001',
+      model: 'gemini-pro',
       generationConfig: {
         responseMimeType: "application/json",
       },
@@ -32,7 +51,7 @@ try {
         },
       ],
     });
-    console.log("✅ Default Gemini model created on startup.");
+    console.log("✅ Default Gemini model (gemini-pro) created on startup.");
   } else {
     console.warn("⚠️ Warning: GEMINI_API_KEY is not set. Users without a key cannot use this feature.");
   }
@@ -141,7 +160,7 @@ router.post('/submit', [auth, upload.single('audio'), usageLimit], async (req, r
       try {
         const customGenAI = new GoogleGenerativeAI(apiKeyToUse.trim());
         aiModel = customGenAI.getGenerativeModel({
-          model: 'gemini-1.5-flash-001',
+          model: 'gemini-pro',
           generationConfig: {
             responseMimeType: "application/json",
           },
