@@ -1,0 +1,150 @@
+/* AboutPage.css */
+.about-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-bottom: 4rem;
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* === HERO SECTION === */
+.mission-hero {
+    text-align: center;
+    margin-bottom: 4rem;
+    padding: 3rem 1rem;
+    background: rgba(var(--card-bg-rgb, 255, 255, 255), 0.03);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid var(--card-border);
+    box-shadow: var(--glass-shadow);
+}
+
+.mission-hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.mission-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* === SECTION HEADERS === */
+.section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.section-header p {
+    color: var(--text-tertiary);
+}
+
+/* === TECH STACK GRID === */
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+}
+
+.tech-card {
+    background: rgba(var(--card-bg-rgb, 255, 255, 255), 0.05);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.tech-card:hover {
+    transform: translateY(-5px);
+    background: rgba(var(--card-bg-rgb, 255, 255, 255), 0.08);
+    border-color: var(--accent-primary);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.tech-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.tech-card h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.tech-card p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* === STORY SECTION === */
+.story-section {
+    background: linear-gradient(180deg, rgba(var(--accent-rgb, 99, 102, 241), 0.05) 0%, transparent 100%);
+    border-radius: 20px;
+    padding: 3rem;
+    border: 1px solid var(--card-border);
+}
+
+.story-content {
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .story-content {
+        flex-direction: column;
+    }
+}
+
+.story-text {
+    flex: 1;
+}
+
+.story-text h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.story-text p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.7;
+}
+
+.story-stat {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.stat-item h4 {
+    font-size: 2rem;
+    color: var(--accent-primary);
+    margin: 0;
+}
+
+.stat-item span {
+    color: var(--text-tertiary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}

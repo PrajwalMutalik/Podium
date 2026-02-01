@@ -19,99 +19,120 @@ const ContactPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setStatus({ type: 'pending', message: 'Sending...' });
+    setStatus({ type: 'pending', message: 'Sending message...' });
 
     try {
-      console.log('Attempting to send message...');
-      const response = await axios.post(
+      await axios.post(
         `${BASE_URL}/api/contact`,
         { name, email, message },
-        {
-          headers: { 'Content-Type': 'application/json' },
-          timeout: 10000 // 10 second timeout
-        }
+        { headers: { 'Content-Type': 'application/json' }, timeout: 10000 }
       );
 
-      console.log('Server response:', response.data);
-      setStatus({ type: 'success', message: 'Message sent successfully! We will get back to you soon.' });
+      setStatus({ type: 'success', message: 'Message sent! We\'ll be in touch.' });
       setFormData({ name: '', email: '', message: '' });
     } catch (error) {
-      console.error('Contact form error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        statusText: error.response?.statusText
-      });
-
-      let errorMessage = 'Failed to send message. Please try again later.';
-
-      if (error.response?.data?.detail) {
-        errorMessage = `Error: ${error.response.data.detail}`;
-      } else if (error.response?.data?.msg) {
-        errorMessage = error.response.data.msg;
-      } else if (error.code === 'ECONNABORTED') {
-        errorMessage = 'Request timed out. Please try again.';
-      }
-
-      setStatus({
-        type: 'error',
-        message: errorMessage
-      });
+      let errorMessage = 'Failed to send message.';
+      if (error.response?.data?.msg) errorMessage = error.response.data.msg;
+      setStatus({ type: 'error', message: errorMessage });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="contact-container glass-container">
-      <h1>Contact Us</h1>
-      <p className="contact-description">
-        Have a question, feedback, or a partnership inquiry? We'd love to hear from you.
-        Fill out the form below and we'll get back to you as soon as possible.
-      </p>
+    <div className="contact-container">
+      <div className="contact-header">
+        <h1>Get in Touch</h1>
+        <p>Questions, feedback, or just want to say hi? We're here for you.</p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="contact-form">
-        <input
-          type="text"
-          name="name"
-          value={name}
-          onChange={onChange}
-          placeholder="Your Name"
-          required
-          minLength="2"
-          maxLength="50"
-        />
-        <input
-          type="email"
-          name="email"
-          value={email}
-          onChange={onChange}
-          placeholder="Your Email"
-          required
-        />
-        <textarea
-          name="message"
-          value={message}
-          onChange={onChange}
-          placeholder="Your Message"
-          rows="6"
-          required
-          minLength="10"
-          maxLength="1000"
-        ></textarea>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Sending...' : 'Send Message'}
-        </button>
-      </form>
+      <div className="contact-grid">
+        {/* LEFT: FORM */}
+        <div className="contact-form-panel">
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <input
+                type="text"
+                name="name"
+                className="contact-input"
+                value={name}
+                onChange={onChange}
+                placeholder="Your Name"
+                required
+                minLength="2"
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="email"
+                name="email"
+                className="contact-input"
+                value={email}
+                onChange={onChange}
+                placeholder="Your Email"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <textarea
+                name="message"
+                className="contact-textarea"
+                value={message}
+                onChange={onChange}
+                placeholder="How can we help?"
+                rows="5"
+                required
+                minLength="10"
+              ></textarea>
+            </div>
 
-      {status.message && (
-        <div className={`status-message ${status.type}`}>
-          {status.message}
+            <button type="submit" className="btn-send" disabled={isSubmitting}>
+              {isSubmitting ? 'Sending...' : 'Send Message 🚀'}
+            </button>
+
+            {status.message && (
+              <div className={`status-message ${status.type}`}>
+                {status.message}
+              </div>
+            )}
+          </form>
         </div>
-      )}
+
+        {/* RIGHT: INFO UI */}
+        <div className="contact-info-panel">
+          <div className="info-card">
+            <div className="info-icon">📧</div>
+            <div className="info-text">
+              <h3>Email Us</h3>
+              <p>support@podium.ai</p>
+            </div>
+          </div>
+
+          <div className="info-card">
+            <div className="info-icon">🐦</div>
+            <div className="info-text">
+              <h3>Twitter</h3>
+              <p>@PodiumAI</p>
+            </div>
+          </div>
+
+          <div className="info-card">
+            <div className="info-icon">💻</div>
+            <div className="info-text">
+              <h3>GitHub</h3>
+              <a href="https://github.com/PrajwalMutalik/Podium">Check our changelog</a>
+            </div>
+          </div>
+
+          <div className="info-card" style={{ marginTop: 'auto', background: 'rgba(99, 102, 241, 0.1)', borderColor: 'var(--accent-primary)' }}>
+            <div className="info-icon">⚡</div>
+            <div className="info-text">
+              <h3>Quick Tip</h3>
+              <p>We usually reply within 24 hours!</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
