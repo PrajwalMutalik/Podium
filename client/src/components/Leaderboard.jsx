@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { BASE_URL } from '../config/api';
 
 // --- MOCK COMPONENTS & STYLES FOR PREVIEW ---
 // These are included to make the component runnable and resolve import errors.
@@ -99,7 +100,7 @@ const Leaderboard = () => {
     const fetchLeaderboard = async () => {
       try {
         const token = localStorage.getItem('token');
-        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
+        const baseUrl = BASE_URL;
         const res = await axios.get(`${baseUrl}/api/leaderboard`, {
           headers: { 'x-auth-token': token },
         });
@@ -127,7 +128,9 @@ const Leaderboard = () => {
           {leaderboard.map((user, index) => (
             <div key={user._id} className="leaderboard-item glass-container">
               <div className="rank">{getRankIcon(index + 1)}</div>
-              <div className="user-name">{user.name}</div>
+              <div className="user-name">
+                {user.username ? `@${user.username}` : user.name}
+              </div>
               <div className="user-points">{user.points} XP</div>
             </div>
           ))}

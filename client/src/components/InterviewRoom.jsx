@@ -2,15 +2,16 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useQuota } from '../context/QuotaContext'; // 1. Import the useQuota hook
+import { useQuota } from '../context/QuotaContext';
+import { BASE_URL } from '../config/api';
 import AnalysisReport from './AnalysisReport';
-import Spinner from './Spinner';
 import AudioVisualizer from './AudioVisualizer';
+import './InterviewRoom.css';
 
 const InterviewRoom = () => {
   const { fetchUserProfile } = useAuth();
   const { userApiKey } = useAuth();
-  const { fetchQuota } = useQuota(); // Get fetchQuota from context
+  const { fetchQuota } = useQuota();
   const location = useLocation();
   const navigate = useNavigate();
   const [question, setQuestion] = useState(null);
@@ -21,7 +22,6 @@ const InterviewRoom = () => {
   const mediaRecorder = useRef(null);
   const audioChunks = useRef([]);
 
-  // This function fetches the question from the backend
   const fetchQuestion = useCallback(async () => {
     const params = new URLSearchParams(location.search);
     const role = params.get('role');
@@ -29,18 +29,21 @@ const InterviewRoom = () => {
 
     try {
       const token = localStorage.getItem('token');
-            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/questions/random`, {
+      const res = await axios.get(`${BASE_URL}/api/questions/random`, {
         headers: { 'x-auth-token': token },
         params: { role, category },
       });
       setQuestion(res.data);
     } catch (error) {
       console.error('Error fetching question:', error);
-      setQuestion({ text: 'Could not load a question. Please check your connection or try different filters.' });
+      if (error.response && error.response.status === 404) {
+        setQuestion({ text: 'No questions found for this category. Please try a different one.' });
+      } else {
+        setQuestion({ text: 'Could not load a question. Please check your connection.' });
+      }
     }
   }, [location.search]);
 
-  // This effect runs once when the component loads to get the first question
   useEffect(() => {
     fetchQuestion();
   }, [fetchQuestion]);
@@ -88,22 +91,20 @@ const InterviewRoom = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/interview/submit`, formData, {
+      const res = await axios.post(`${BASE_URL}/api/interview/submit`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'x-auth-token': token,
         },
       });
       setAnalysis(res.data);
-      await fetchQuota(); // Refresh quota after successful submission
+      await fetchQuota();
       fetchUserProfile();
     } catch (error) {
       console.error('Error uploading audio:', error);
-      // Check for the specific "Too Many Requests" error from the server
       if (error.response && error.response.status === 429) {
-        alert('Daily usage limit reached. Please try again tomorrow or upgrade your plan.');
+        alert('Daily usage limit reached.');
       } else {
-        // For any other error, show a generic alert
         alert('Failed to submit your answer. Please try again.');
       }
     }
@@ -116,39 +117,86 @@ const InterviewRoom = () => {
     fetchQuestion();
   };
 
-  // This is the main render logic for the component
   const renderContent = () => {
     if (analysis) {
       return <AnalysisReport analysis={analysis} onNext={handleNextQuestion} />;
     }
+
     if (isProcessing) {
       return (
-        <>
-          <h2>Analyzing Your Answer...</h2>
-          <p className="question-text">{question?.text}</p>
-          <Spinner text="Please wait, the AI is thinking..." />
-        </>
+        <div className="processing-state">
+          <div className="spinner-ring"></div>
+          <p className="processing-text">Analyzing your response...</p>
+          <p style={{ color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>This usually takes 5-10 seconds.</p>
+        </div>
       );
     }
+
     if (!question) {
-      return <Spinner text="Loading question..." />;
+      return (
+        <div className="processing-state">
+          <div className="spinner-ring" style={{ width: '30px', height: '30px' }}></div>
+          <p>Loading question...</p>
+        </div>
+      );
     }
+
+    if (question.text && (question.text.startsWith('No questions') || question.text.startsWith('Could not load'))) {
+      return (
+        <div className="error-container">
+          <h3>Oops!</h3>
+          <p>{question.text}</p>
+          <button onClick={() => navigate('/dashboard')} className="btn btn-primary" style={{ marginTop: '1rem' }}>
+            Return to Dashboard
+          </button>
+        </div>
+      );
+    }
+
     return (
       <>
-        <h2>Interview Question:</h2>
-        <p className="question-text">{question?.text}</p>
-        {isRecording && audioStream && (
-          <div className="visualizer-wrapper">
+        <div className="interview-header">
+          <p className="question-label">Interview Question</p>
+          <h1 className="question-text">{question.text}</h1>
+        </div>
+
+        {/* Visualizer Area - only visible when recording or stream acts */}
+        <div className="visualizer-container">
+          {isRecording && audioStream ? (
             <AudioVisualizer audioStream={audioStream} />
-          </div>
-        )}
-        <div className="controls">
-          {!isRecording ? (
-            <button onClick={startRecording}>Start Recording</button>
           ) : (
-            <button onClick={stopRecording}>Stop Recording</button>
+            <p style={{ color: 'var(--text-tertiary)', fontStyle: 'italic' }}>
+              Press the microphone to start answering...
+            </p>
           )}
-          <button onClick={() => navigate('/dashboard')} className="end-session-button">
+        </div>
+
+        <div className="controls-bar">
+          {/* Skip Button (Optional, but good for UX) */}
+          <button
+            className="control-action-btn"
+            onClick={handleNextQuestion}
+            disabled={isRecording}
+            title="Skip to next question"
+          >
+            Skip
+          </button>
+
+          {/* Main Record FAB */}
+          <div className="record-btn-wrapper">
+            {!isRecording ? (
+              <button className="record-btn" onClick={startRecording} title="Start Recording">
+                🎤
+              </button>
+            ) : (
+              <button className="record-btn recording" onClick={stopRecording} title="Stop Recording">
+                <div className="stop-icon"></div>
+              </button>
+            )}
+          </div>
+
+          {/* End Session */}
+          <button className="control-action-btn end" onClick={() => navigate('/dashboard')}>
             End Session
           </button>
         </div>
@@ -156,7 +204,7 @@ const InterviewRoom = () => {
     );
   };
 
-  return <div className="glass-container">{renderContent()}</div>;
+  return <div className="glass-container interview-container">{renderContent()}</div>;
 };
 
 export default InterviewRoom;

@@ -1,0 +1,156 @@
+/* SessionSetup.css */
+
+.session-setup-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.setup-card {
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.setup-header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.setup-header h1 {
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.setup-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* === BENTO GRID SELECTION === */
+.selection-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.selection-title {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    margin-left: 0.25rem;
+}
+
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.selection-card {
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--card-border);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0.75rem;
+    min-height: 120px;
+}
+
+.selection-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+    border-color: var(--text-tertiary);
+}
+
+.selection-card.selected {
+    background: rgba(var(--accent-primary-rgb, 59, 130, 246), 0.1);
+    /* Fallback or variable */
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+/* Card Content */
+.card-icon {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.card-label {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+.selection-card.selected .card-label {
+    color: var(--accent-primary);
+}
+
+/* === START BUTTON === */
+.action-wrapper {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.start-session-btn {
+    width: 100%;
+    max-width: 400px;
+    padding: 1rem;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.btn-icon {
+    font-size: 1.25rem;
+}
+
+/* === RESOURCE TEASER === */
+.resource-teaser {
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    cursor: pointer;
+}
+
+.teaser-content h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.teaser-content p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.download-link {
+    color: var(--accent-primary);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+    .bento-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

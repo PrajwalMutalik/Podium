@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { BASE_URL } from '../config/api';
+import Spinner from './Spinner';
 import './HistoryPage.css';
 
 const HistoryPage = () => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     const fetchSessions = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/sessions`, {
+        const res = await axios.get(`${BASE_URL}/api/sessions`, {
           headers: { 'x-auth-token': token },
         });
-        setSessions(res.data);
+        // Sort by date desc
+        const sorted = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setSessions(sorted);
       } catch (error) {
         console.error('Error fetching session history:', error);
       }
@@ -22,63 +27,115 @@ const HistoryPage = () => {
     fetchSessions();
   }, []);
 
-  const handleDelete = async (sessionId) => {
-    if (window.confirm('Are you sure you want to delete this session? This action cannot be undone.')) {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/sessions/${sessionId}`, {
-          headers: { 'x-auth-token': token },
-        });
-        setSessions(sessions.filter((session) => session._id !== sessionId));
-      } catch (error) {
-        console.error('Error deleting session:', error);
-        alert('Failed to delete session.');
-      }
+  const handleDelete = async (e, sessionId) => {
+    e.stopPropagation(); // Prevent toggling accordion
+    if (!window.confirm('Delete this session record permanently?')) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${BASE_URL}/api/sessions/${sessionId}`, {
+        headers: { 'x-auth-token': token },
+      });
+      setSessions(sessions.filter((s) => s._id !== sessionId));
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      alert('Failed to delete session.');
     }
   };
 
-  if (loading) {
-    return <div className="loading-text">Loading History...</div>;
-  }
+  const toggleExpand = (id) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  if (loading) return <Spinner text="Loading your history..." />;
 
   return (
-    <div className="glass-container">
-      <h1>Your Progress</h1>
-      <p>Review your past interview sessions to track your improvement.</p>
+    <div className="history-container">
+      <div className="history-header">
+        <h1>Session History</h1>
+        <p>Review your performance and track your growth over time.</p>
+      </div>
+
       <div className="sessions-list">
         {sessions.length === 0 ? (
-          <p>You have no saved sessions yet. Go practice!</p>
+          <div className="empty-history">
+            <h3>No sessions recorded yet</h3>
+            <p>Complete your first practice interview to see it here!</p>
+          </div>
         ) : (
-          sessions.map((session) => (
-            <div key={session._id} className="session-card">
-              <div className="session-header">
-                <h3>{new Date(session.date).toLocaleDateString()}</h3>
-                <div className="session-metrics">
-                  <span>{session.wpm} WPM</span>
-                  <span>{session.fillerWordCount} Fillers</span>
-                  <button onClick={() => handleDelete(session._id)} className="delete-button">
-                    Delete
+          sessions.map((session) => {
+            // Determine status class based on WPM (simple logic for demo)
+            const statusClass = session.wpm > 120 && session.wpm < 180 ? 'good' : 'avg';
+            const isExpanded = expandedId === session._id;
+
+            return (
+              <div
+                key={session._id}
+                className={`session-card ${statusClass}`}
+              >
+                <div className="card-header-row">
+                  <div className="session-date">
+                    <span>📅 {new Date(session.date).toLocaleDateString()}</span>
+                    <span>• {new Date(session.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                  <button
+                    className="delete-btn"
+                    onClick={(e) => handleDelete(e, session._id)}
+                    title="Delete Session"
+                  >
+                    🗑️ Delete
                   </button>
                 </div>
-              </div>
-              <p className="question-prompt">
-                <strong>Q:</strong> {session.questionText}
-              </p>
-              <details className="feedback-details">
-                <summary>Show Feedback & Transcript</summary>
-                {/* vvv THIS IS THE CORRECTED SECTION vvv */}
-                <div className="details-content">
-                  <h4>AI Coach Feedback:</h4>
-                  <p>{session.feedback}</p>
-                  <h4>Areas for Improvement:</h4>
-                  <p>{session.improvements}</p>
-                  <h4>Your Transcript:</h4>
-                  <p>{session.transcript}</p>
+
+                <div className="session-question">
+                  "{session.questionText}"
                 </div>
-                {/* ^^^ END OF CORRECTED SECTION ^^^ */}
-              </details>
-            </div>
-          ))
+
+                <div className="card-metrics">
+                  <div className="metric-item">
+                    <span className="metric-label">Pace</span>
+                    <span className="metric-value">{session.wpm} <small>WPM</small></span>
+                  </div>
+                  <div className="metric-item">
+                    <span className="metric-label">Fillers</span>
+                    <span className="metric-value">{session.fillerWordCount}</span>
+                  </div>
+                </div>
+
+                <div className="feedback-accordion">
+                  <div
+                    className="accordion-toggle"
+                    onClick={() => toggleExpand(session._id)}
+                  >
+                    {isExpanded ? 'Hide Analysis ▲' : 'View AI Analysis ▼'}
+                  </div>
+
+                  {isExpanded && (
+                    <div className="accordion-content">
+                      <div className="feedback-block">
+                        <h4>🤖 AI Feedback</h4>
+                        <p>{session.feedback || "No feedback available."}</p>
+                      </div>
+
+                      {session.improvements && (
+                        <div className="feedback-block">
+                          <h4>📈 Areas to Improve</h4>
+                          <p>{session.improvements}</p>
+                        </div>
+                      )}
+
+                      <div className="feedback-block">
+                        <h4>📝 Transcript</h4>
+                        <p style={{ fontStyle: 'italic', opacity: 0.8 }}>
+                          "{session.transcript || 'No transcript available.'}"
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
     </div>

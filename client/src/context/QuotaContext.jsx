@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useAuth } from './AuthContext'; // Assuming you have an AuthContext that provides the token
+import { BASE_URL } from '../config/api';
 
 const QuotaContext = createContext();
 
@@ -21,7 +22,7 @@ export const QuotaProvider = ({ children }) => {
 
     try {
       setIsLoading(true);
-      const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, ''); // Remove trailing slash if present
+      const baseUrl = BASE_URL;
       const response = await fetch(`${baseUrl}/api/interview/check-quota`, {
         headers: {
           'x-auth-token': token,
@@ -34,9 +35,9 @@ export const QuotaProvider = ({ children }) => {
     } catch (error) {
       console.error('Failed to fetch quota:', error);
       // Fallback quota
-      setQuota({ 
-        currentUsage: 0, 
-        dailyLimit: userApiKey ? 'Unlimited' : 10 
+      setQuota({
+        currentUsage: 0,
+        dailyLimit: userApiKey ? 'Unlimited' : 10
       });
     } finally {
       setIsLoading(false);

@@ -1,40 +1,74 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useQuota } from '../context/QuotaContext';
-import axios from 'axios';
+import { BASE_URL } from '../config/api';
+import './SettingsPage.css';
 
 const SettingsPage = () => {
-  const { userApiKey, saveUserApiKey, removeUserApiKey } = useAuth();
+  const { userApiKey, saveUserApiKey, removeUserApiKey, userProfile, fetchUserProfile } = useAuth();
   const { quota, fetchQuota, isLoading } = useQuota();
+
+  // API Key State
   const [apiKey, setApiKey] = useState(userApiKey || '');
   const [saveToDatabase, setSaveToDatabase] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
+  const [isVerifyingKey, setIsVerifyingKey] = useState(false);
 
-  // Sync local state with context when userApiKey changes
+  // Profile State
+  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
   useEffect(() => {
     setApiKey(userApiKey || '');
-    // Refresh quota when API key changes
+    if (userProfile) {
+      setName(userProfile.name || '');
+      setUsername(userProfile.username || '');
+    }
     fetchQuota();
-  }, [userApiKey, fetchQuota]);
+  }, [userApiKey, userProfile, fetchQuota]);
 
-  const handleSubmit = async (e) => {
+  // Handle Profile Update
+  const handleProfileUpdate = async (e) => {
     e.preventDefault();
-    
-    setIsVerifying(true);
-    
+    setIsSavingProfile(true);
+
     try {
-      // Always save to localStorage for session use
+      const token = localStorage.getItem('token');
+      await axios.put(`${BASE_URL}/api/user/profile`,
+        { name, username },
+        { headers: { 'x-auth-token': token } }
+      );
+
+      await fetchUserProfile();
+      alert('✅ Profile updated successfully!');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      if (error.response && error.response.data.msg) {
+        alert(`❌ ${error.response.data.msg}`);
+      } else {
+        alert('Failed to update profile.');
+      }
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
+  // Handle API Key Submit
+  const handleKeySubmit = async (e) => {
+    e.preventDefault();
+    setIsVerifyingKey(true);
+
+    try {
       saveUserApiKey(apiKey);
-      
-      // Optionally save to database for persistent storage (with verification)
+
       if (saveToDatabase) {
         const token = localStorage.getItem('token');
-        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
-        const response = await axios.post(`${baseUrl}/api/user/update-api-key`, 
+        const response = await axios.post(`${BASE_URL}/api/user/update-api-key`,
           { geminiApiKey: apiKey },
           { headers: { 'x-auth-token': token } }
         );
-        
+
         if (response.data.verified) {
           alert(`✅ ${response.data.msg}`);
         } else if (!response.data.hasApiKey) {
@@ -42,136 +76,170 @@ const SettingsPage = () => {
         } else {
           alert('API Key saved locally for this session!');
         }
-        
-        // Refresh quota after saving
         await fetchQuota();
       } else {
-        if (apiKey.trim() === '') {
-          alert('API Key removed from this session. You now have 10 requests per day.');
-        } else {
-          alert('API Key saved locally for this session!');
-        }
+        alert(apiKey.trim() === ''
+          ? 'API Key removed from session.'
+          : 'API Key saved locally for this session!');
       }
     } catch (error) {
       console.error('Error saving API key:', error);
-      
       if (error.response && error.response.data.error === 'API_KEY_INVALID') {
-        alert('❌ Invalid API key. Please check your Gemini API key and try again.');
+        alert('❌ Invalid API key.');
       } else {
-        alert('Error saving API key to database. It has been saved locally for this session.');
+        alert('Error saving API key. Saved locally as fallback.');
       }
     } finally {
-      setIsVerifying(false);
+      setIsVerifyingKey(false);
     }
   };
 
   const handleRemoveKey = async () => {
-    if (!window.confirm('Are you sure you want to remove your API key? You will be limited to 10 requests per day.')) {
-      return;
-    }
+    if (!window.confirm('Remove your custom API key?')) return;
 
-    setIsVerifying(true);
-    
+    setIsVerifyingKey(true);
     try {
-      // Clear from context and localStorage immediately (updates UI)
       removeUserApiKey();
-      setApiKey(''); // Update local state to hide the key in the form
-      
-      // Remove from database as well
+      setApiKey('');
+
       const token = localStorage.getItem('token');
-      const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
-      const response = await axios.post(`${baseUrl}/api/user/update-api-key`, 
+      await axios.post(`${BASE_URL}/api/user/update-api-key`,
         { geminiApiKey: '' },
         { headers: { 'x-auth-token': token } }
       );
-      
-      alert(`🗑️ ${response.data.msg}`);
-      
-      // Refresh quota after removal
+
       await fetchQuota();
+      alert('API Key removed successfully.');
     } catch (error) {
-      console.error('Error removing API key:', error);
-      if (error.response) {
-        console.error('Error response:', error.response.data);
-        alert(error.response.data.msg || 'Error removing API key. Please try again.');
-      } else {
-        alert('API key removed locally. You may need to refresh to see changes.');
-      }
+      alert('Failed to remove key from server, but removed locally.');
     } finally {
-      setIsVerifying(false);
+      setIsVerifyingKey(false);
     }
   };
 
   return (
-    <div className="glass-container">
-      <h1>API Key Settings</h1>
-      <p>
-        To avoid using the site's shared API quota, you can provide your own Google Gemini API key here. 
-        Your key can be saved locally (session only) or to your account for persistent use.
-      </p>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="apiKey">Your Google Gemini API Key:</label>
-          <input
-            type="password" // Use password type to obscure the key
-            id="apiKey"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder="Enter your API key"
-          />
+    <div className="settings-container">
+      <div className="settings-header">
+        <h1>Settings & Preferences</h1>
+        <p>Manage your account, API keys, and customizations.</p>
+      </div>
+
+      {/* ACCOUNT SECTION (Editable) */}
+      <div className="settings-section">
+        <div className="section-title">
+          <span className="section-icon">👤</span>
+          <h2>Account Profile</h2>
         </div>
-        <div className="form-group">
-          <label>
+        <form onSubmit={handleProfileUpdate}>
+          <div className="input-group">
+            <label className="input-label">Display Name</label>
+            <input
+              type="text"
+              className="input-field"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your Name"
+              required
+            />
+          </div>
+          <div className="input-group">
+            <label className="input-label">Unique Username</label>
+            <input
+              type="text"
+              className="input-field"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Create a unique username"
+            />
+            <span className="input-helper">This must be unique across all users.</span>
+          </div>
+          <div className="input-group">
+            <label className="input-label">Email Address</label>
+            <input
+              type="email"
+              className="input-field"
+              value={userProfile?.email || ''}
+              disabled
+              style={{ opacity: 0.7, cursor: 'not-allowed' }}
+            />
+          </div>
+          <button type="submit" className="btn-save" disabled={isSavingProfile}>
+            {isSavingProfile ? 'Saving...' : 'Update Profile'}
+          </button>
+        </form>
+      </div>
+
+      {/* API KEY SECTION */}
+      <div className="settings-section">
+        <div className="section-title">
+          <span className="section-icon">🔑</span>
+          <h2>Gemini API Configuration</h2>
+        </div>
+
+        <form onSubmit={handleKeySubmit}>
+          <div className="input-group">
+            <label htmlFor="apiKey" className="input-label">Your Gemini API Key</label>
+            <input
+              type="password"
+              id="apiKey"
+              className="input-field"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="Ex: AIzaSy..."
+            />
+            <span className="input-helper">
+              Provide your own key to bypass daily feedback limits.
+            </span>
+          </div>
+
+          <label className="checkbox-wrapper">
             <input
               type="checkbox"
+              className="checkbox-input"
               checked={saveToDatabase}
               onChange={(e) => setSaveToDatabase(e.target.checked)}
             />
-            Save to my account (persistent across sessions)
+            <div>
+              <span className="checkbox-label">Save to my account securely</span>
+              <span className="checkbox-desc">
+                If unchecked, the key is only saved in your browser for this session.
+              </span>
+            </div>
           </label>
-          <small>
-            Please check the box if you want to save the key to your account. 
-          </small>
-        </div>
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-          <button type="submit" disabled={isVerifying}>
-            {isVerifying ? 'Verifying API Key...' : 'Save Key'}
-          </button>
-          
-          {apiKey && (
-            <button 
-              type="button" 
-              onClick={handleRemoveKey} 
-              disabled={isVerifying}
-              style={{ 
-                backgroundColor: '#ef4444', 
-                borderColor: '#ef4444' 
-              }}
-            >
-              Remove Key
+
+          <div className="btn-group">
+            <button type="submit" className="btn-save" disabled={isVerifyingKey}>
+              {isVerifyingKey ? 'Verifying...' : 'Save Configuration'}
             </button>
-          )}
-        </div>
-      </form>
-      
-      <div className={`api-status-card ${apiKey ? 'active' : 'limited'}`}>
-        {apiKey ? (
-          <>
-            <h3>✅ Custom API Key Active</h3>
-            <p><strong>Status:</strong> Unlimited usage with your own Gemini API key!</p>
-            <p><strong>Daily Limit:</strong> {isLoading ? 'Loading...' : quota.dailyLimit}</p>
-            <p><small>Your key is being used for all interview sessions.</small></p>
-          </>
-        ) : (
-          <>
-            <h3>⚠️ Using Shared API</h3>
-            <p><strong>Status:</strong> Limited to 10 requests per day</p>
-            {!isLoading && (
-              <p><strong>Usage Today:</strong> {quota.currentUsage} / {quota.dailyLimit} requests</p>
+
+            {apiKey && (
+              <button
+                type="button"
+                className="btn-remove"
+                onClick={handleRemoveKey}
+                disabled={isVerifyingKey}
+              >
+                Remove Key
+              </button>
             )}
-            <p><small>Add your own Gemini API key above for unlimited usage.</small></p>
-          </>
-        )}
+          </div>
+        </form>
+
+        {/* STATUS INDICATOR */}
+        <div className={`status-card ${apiKey ? 'active' : 'limited'}`}>
+          <div className="status-icon">
+            {apiKey ? '✅' : '⚠️'}
+          </div>
+          <div className="status-content">
+            <h3>{apiKey ? 'Unlimited Access Active' : 'Daily Limit Active'}</h3>
+            <p>
+              {apiKey
+                ? 'You are using your own API key. No usage limits apply.'
+                : `You are on the free tier. ${quota.currentUsage} / ${quota.dailyLimit} requests used today.`
+              }
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

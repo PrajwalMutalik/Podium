@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { BASE_URL } from '../config/api';
 
 const UpgradePage = () => {
   const [transactionId, setTransactionId] = useState('');
@@ -11,7 +12,7 @@ const UpgradePage = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/payment/verify`, 
+      const res = await axios.post(`${BASE_URL}/api/payment/verify`,
         { transactionId },
         { headers: { 'x-auth-token': token } }
       );
@@ -27,10 +28,10 @@ const UpgradePage = () => {
       <h1>Upgrade Your Account</h1>
       <p>You have reached your daily limit of 5 free practice sessions.</p>
       <p>Scan the QR code below to pay and get **20 additional requests**.</p>
-      
+
       <div className="qr-code-container">
         {/* REPLACE THIS with the actual URL to your QR code image */}
-        <img src="https://i.imgur.com/your-qr-code.png" alt="Payment QR Code" style={{width: '200px', height: '200px', borderRadius: '8px'}} />
+        <img src="https://i.imgur.com/your-qr-code.png" alt="Payment QR Code" style={{ width: '200px', height: '200px', borderRadius: '8px' }} />
       </div>
 
       <form onSubmit={handleVerify}>
@@ -47,7 +48,7 @@ const UpgradePage = () => {
         </div>
         <button type="submit">Verify Payment</button>
       </form>
-      {message && <p style={{marginTop: '1rem'}}>{message}</p>}
+      {message && <p style={{ marginTop: '1rem' }}>{message}</p>}
     </div>
   );
 };

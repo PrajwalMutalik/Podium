@@ -10,6 +10,7 @@ const { AssemblyAI } = require('assemblyai');
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 const { processGamification } = require('../services/gamificationService'); // 👈 Import the service
 
+console.log("AssemblyAI Key Status:", process.env.ASSEMBLYAI_API_KEY ? "Present" : "Missing", "Length:", process.env.ASSEMBLYAI_API_KEY ? process.env.ASSEMBLYAI_API_KEY.length : 0);
 const assemblyClient = new AssemblyAI({ apiKey: process.env.ASSEMBLYAI_API_KEY });
 
 // Only create default Gemini model if server API key exists
@@ -17,29 +18,29 @@ let genAI = null;
 let model = null;
 
 try {
-  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '') {
-    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
-      generationConfig: {
-        responseMimeType: "application/json",
-      },
-      safetySettings: [
-        {
-          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
-        },
-      ],
-    });
-    console.log("✅ Default Gemini model created on startup.");
-  } else {
-    console.warn("⚠️ Warning: GEMINI_API_KEY is not set. Users without a key cannot use this feature.");
-  }
+  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '') {
+    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      generationConfig: {
+        responseMimeType: "application/json",
+      },
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        },
+      ],
+    });
+    console.log("✅ Default Gemini model created on startup.");
+  } else {
+    console.warn("⚠️ Warning: GEMINI_API_KEY is not set. Users without a key cannot use this feature.");
+  }
 } catch (error) {
-  console.error("❌ Fatal error creating Gemini model on startup:", error.message);
-  // This will prevent the server from crashing, but the feature will be unavailable.
-  genAI = null;
-  model = null;
+  console.error("❌ Fatal error creating Gemini model on startup:", error.message);
+  // This will prevent the server from crashing, but the feature will be unavailable.
+  genAI = null;
+  model = null;
 }
 
 
@@ -57,8 +58,8 @@ router.get('/check-quota', auth, async (req, res) => {
 
     // If no server API key is available, users must provide their own
     if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.trim() === '') {
-      return res.json({ 
-        currentUsage: 0, 
+      return res.json({
+        currentUsage: 0,
         dailyLimit: 0,
         requiresApiKey: true,
         message: 'Please add your own Gemini API key in Settings to use this feature.'
@@ -67,17 +68,17 @@ router.get('/check-quota', auth, async (req, res) => {
 
     // For users without API key but server has one, they have daily limit of 10
     const today_utc_string = new Date().toISOString().split('T')[0];
-    const last_usage_utc_string = user.lastApiUsageDate 
-      ? user.lastApiUsageDate.toISOString().split('T')[0] 
+    const last_usage_utc_string = user.lastApiUsageDate
+      ? user.lastApiUsageDate.toISOString().split('T')[0]
       : null;
-      
+
     let currentUsage = user.apiUsageCount;
 
     // If the last usage was not today, the current usage is effectively 0 for today
     if (today_utc_string !== last_usage_utc_string) {
       currentUsage = 0;
     }
-    
+
     // Send back the current usage and the defined limit of 10
     res.json({ currentUsage, dailyLimit: DAILY_LIMIT });
 
@@ -90,12 +91,12 @@ router.get('/check-quota', auth, async (req, res) => {
 
 router.post('/submit', [auth, upload.single('audio'), usageLimit], async (req, res) => {
   const { questionText, geminiApiKey } = req.body;
-  
+
   console.log("=== DEBUG INFO ===");
   console.log("questionText received:", !!questionText);
   console.log("geminiApiKey from request:", geminiApiKey ? `${geminiApiKey.substring(0, 10)}...` : 'Not provided');
   console.log("geminiApiKey length:", geminiApiKey ? geminiApiKey.length : 0);
-  
+
   if (!req.file || !questionText) {
     return res.status(400).send('Missing audio file or question text.');
   }
@@ -114,29 +115,29 @@ router.post('/submit', [auth, upload.single('audio'), usageLimit], async (req, r
     }
 
     console.log("3. Generating AI feedback...");
-    
+
     // Get the user from database to check for stored API key
     const user = await User.findById(req.user.id);
     const userStoredApiKey = user ? user.geminiApiKey : null;
-    
+
     console.log("User stored API key:", userStoredApiKey ? `${userStoredApiKey.substring(0, 10)}...` : 'Not stored');
     console.log("Request API key provided:", geminiApiKey ? `${geminiApiKey.substring(0, 10)}...` : 'Not provided');
-    
+
     // PRIORITY: Always prioritize user-provided API keys over server API key
     // 1. Use request API key if provided
     // 2. Use stored user API key if available
     // 3. Fall back to server API key only if no user key is available
-    
+
     let aiModel = null;
     let apiKeyToUse = geminiApiKey || userStoredApiKey;
     let usingUserApiKey = false;
-    
+
     if (apiKeyToUse && apiKeyToUse.trim() !== '') {
       console.log("🔑 Using user-provided Gemini API key for this request");
       console.log("Final API key starts with:", apiKeyToUse.trim().substring(0, 10) + "...");
       console.log("Final API key length:", apiKeyToUse.trim().length);
       usingUserApiKey = true;
-      
+
       try {
         const customGenAI = new GoogleGenerativeAI(apiKeyToUse.trim());
         aiModel = customGenAI.getGenerativeModel({
@@ -154,7 +155,7 @@ router.post('/submit', [auth, upload.single('audio'), usageLimit], async (req, r
         console.log("✅ Custom Gemini model created successfully");
       } catch (modelError) {
         console.error("❌ Error creating custom Gemini model:", modelError);
-        return res.status(400).json({ 
+        return res.status(400).json({
           msg: 'Invalid API key provided. Please check your Gemini API key and try again.',
           error: 'Custom API key configuration failed'
         });
@@ -165,12 +166,12 @@ router.post('/submit', [auth, upload.single('audio'), usageLimit], async (req, r
       usingUserApiKey = false;
     } else {
       console.log("❌ No API key available - neither user nor server");
-      return res.status(400).json({ 
+      return res.status(400).json({
         msg: 'No Gemini API key available. Please add your own API key in Settings to use this feature.',
         error: 'No API key configured'
       });
     }
-    
+
     const prompt = `
     You are an expert career coach. Analyze the user's interview answer.
     The user was asked: "${questionText}"
@@ -179,23 +180,23 @@ router.post('/submit', [auth, upload.single('audio'), usageLimit], async (req, r
     - "feedback": A concise, friendly paragraph summarizing the answer.
     - "improvements": A concise, friendly paragraph with actionable suggestions.
     `;
-    
+
     let result;
     try {
       result = await aiModel.generateContent(prompt);
     } catch (apiError) {
       console.error("Error calling Gemini API:", apiError);
-      
+
       // If it's a custom API key error, provide specific feedback
       if (geminiApiKey && apiError.message.includes('API key not valid')) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           msg: 'Your custom API key is invalid. Please check your Gemini API key in Settings and try again.',
           error: 'Invalid custom API key'
         });
       }
-      
+
       // For other API errors, fall back to generic error
-      return res.status(500).json({ 
+      return res.status(500).json({
         msg: 'Error generating AI feedback. Please try again.',
         error: 'AI service unavailable'
       });

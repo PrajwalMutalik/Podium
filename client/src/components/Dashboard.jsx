@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // 1. Import useAuth
+import { useAuth } from '../context/AuthContext';
 import { useQuota } from '../context/QuotaContext';
+import { BASE_URL } from '../config/api';
 import Spinner from './Spinner';
 import './Dashboard.css';
 
-// A simple component for displaying badges with tooltips
 const Badge = ({ name }) => {
   const badgeDetails = {
     FirstStep: { icon: '👟', description: 'Completed your first session!' },
@@ -18,16 +18,15 @@ const Badge = ({ name }) => {
   const detail = badgeDetails[name] || { icon: '⭐', description: 'An awesome achievement!' };
 
   return (
-    <div className="badge" title={detail.description}>
-      <span className="badge-icon">{detail.icon}</span>
+    <div className="badge-card" title={detail.description}>
+      <div className="badge-icon-wrapper">{detail.icon}</div>
       <span className="badge-name">{name}</span>
     </div>
   );
 };
 
 const Dashboard = () => {
-  // 2. Get userProfile from the AuthContext
-  const { userProfile, userApiKey } = useAuth(); 
+  const { userProfile, userApiKey } = useAuth();
   const { quota, isLoading: quotaLoading } = useQuota();
   const navigate = useNavigate();
 
@@ -39,15 +38,13 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // This useEffect now only fetches session data. Profile data comes from the context.
     const fetchSessionStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
-        const res = await axios.get(`${baseUrl}/api/sessions`, {
+        const res = await axios.get(`${BASE_URL}/api/sessions`, {
           headers: { 'x-auth-token': token },
         });
-        
+
         const sessions = res.data;
         if (sessions.length > 0) {
           const totalWpm = sessions.reduce((sum, s) => sum + s.wpm, 0);
@@ -61,94 +58,130 @@ const Dashboard = () => {
       } catch (error) {
         console.error('Error fetching session stats:', error);
       }
-      // We only stop loading once the session stats are also fetched.
       setLoading(false);
     };
 
-    if (userProfile) { // Only fetch session stats if the user profile is loaded
-        fetchSessionStats();
+    if (userProfile) {
+      fetchSessionStats();
     }
-  }, [userProfile]); // Re-run if userProfile changes
+  }, [userProfile]);
 
-  // 3. The main loading condition now depends on userProfile from the context.
   if (!userProfile || loading) {
     return <Spinner text="Loading Dashboard..." />;
   }
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h1>Welcome Back!</h1>
-        <p>Track your progress and continue improving your interview skills</p>
-      </div>
-      
-      <div className="stats-grid">
-        <div className="stat-card glass-container">
-          <h3>Total Points</h3>
-          <p>{userProfile.points}</p>
-          <div className="stat-subtitle">XP Earned</div>
+      {/* HERO WELCOME SECTION */}
+      <div className="dashboard-hero">
+        <div className="hero-content">
+          <h1>Hello, {userProfile.name.split(' ')[0]}! 👋</h1>
+          <p>Ready to master your next interview?</p>
         </div>
-        <div className="stat-card glass-container">
-          <h3>Practice Streak</h3>
-          <p>{userProfile.currentStreak} <span role="img" aria-label="fire">🔥</span></p>
-          <div className="stat-subtitle">Days in a Row</div>
-        </div>
-        <div className="stat-card glass-container">
-          <h3>Daily Usage</h3>
-          {quotaLoading ? (
-            <p>Loading...</p>
-          ) : userApiKey ? (
-            <p><span role="img" aria-label="unlimited">♾️</span></p>
-          ) : (
-            <p>{quota.currentUsage}/{quota.dailyLimit}</p>
-          )}
-          <div className="stat-subtitle">Available Sessions</div>
-        </div>
-        <div className="stat-card glass-container">
-          <h3>Total Sessions</h3>
-          <p>{stats.totalSessions}</p>
-          <div className="stat-subtitle">Interviews Completed</div>
-        </div>
-        <div className="stat-card glass-container">
-          <h3>Average Pace</h3>
-          <p>{stats.avgWpm}</p>
-          <div className="stat-subtitle">Words per Minute</div>
-        </div>
-        <div className="stat-card glass-container">
-          <h3>Filler Words</h3>
-          <p>{stats.avgFillers}</p>
-          <div className="stat-subtitle">Average per Session</div>
+        <div className="hero-action">
+          <button className="btn btn-primary start-btn" onClick={() => navigate('/practice')}>
+            Start New Session
+          </button>
         </div>
       </div>
 
-      <div className="badges-section glass-container">
-        <h2>Your Achievements</h2>
-        {userProfile.badges && userProfile.badges.length > 0 ? (
-          <div className="badges-grid">
-            {userProfile.badges.map(badgeName => (
-              <Badge key={badgeName} name={badgeName} />
-            ))}
+      {/* MAIN STATS GRID */}
+      <div className="stats-overview">
+        <div className="stat-tile glass-container">
+          <div className="stat-icon">⚡</div>
+          <div className="stat-info">
+            <h3>XP Earned</h3>
+            <p className="stat-value">{userProfile.points}</p>
           </div>
-        ) : (
-          <p className="empty-badges">Complete your first session to earn badges! 🏆</p>
-        )}
+        </div>
+
+        <div className="stat-tile glass-container">
+          <div className="stat-icon">🔥</div>
+          <div className="stat-info">
+            <h3>Day Streak</h3>
+            <p className="stat-value">{userProfile.currentStreak}</p>
+          </div>
+        </div>
+
+        <div className="stat-tile glass-container">
+          <div className="stat-icon">🎫</div>
+          <div className="stat-info">
+            <h3>Daily Quota</h3>
+            {quotaLoading ? (
+              <p className="stat-value">...</p>
+            ) : userApiKey ? (
+              <p className="stat-value">∞</p>
+            ) : (
+              <p className="stat-value">{quota.currentUsage} <span className="stat-max">/ {quota.dailyLimit}</span></p>
+            )}
+          </div>
+        </div>
+
+        <div className="stat-tile glass-container">
+          <div className="stat-icon">🎤</div>
+          <div className="stat-info">
+            <h3>Sessions</h3>
+            <p className="stat-value">{stats.totalSessions}</p>
+          </div>
+        </div>
       </div>
 
-      <div className="actions-grid">
-        <div className="action-card glass-container" onClick={() => navigate('/practice')}>
-          <span className="action-card-icon">🎯</span>
-          <h2>Start Practice</h2>
-          <p>Begin a new interview session with AI-powered feedback</p>
+      {/* CONTENT SPLIT: ACHIEVEMENTS & QUICK ACTIONS */}
+      <div className="dashboard-split">
+        {/* LEFT: ACHIEVEMENTS */}
+        <div className="section-container glass-container">
+          <div className="section-header">
+            <h2>Recent Achievements</h2>
+            <span className="view-all" onClick={() => navigate('/profile')}>View All</span>
+          </div>
+
+          {userProfile.badges && userProfile.badges.length > 0 ? (
+            <div className="badges-scroll">
+              {userProfile.badges.map(badgeName => (
+                <Badge key={badgeName} name={badgeName} />
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <span style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🏆</span>
+              <p>Complete your first session to earn badges!</p>
+            </div>
+          )}
         </div>
-        <div className="action-card glass-container" onClick={() => navigate('/history')}>
-          <span className="action-card-icon">📊</span>
-          <h2>View History</h2>
-          <p>Review your past sessions and track your improvement</p>
-        </div>
-        <div className="action-card glass-container" onClick={() => navigate('/leaderboard')}>
-          <span className="action-card-icon">🏆</span>
-          <h2>Leaderboard</h2>
-          <p>Compare your progress with other top performers</p>
+
+        {/* RIGHT: TOOLS/ACTIONS */}
+        <div className="section-container glass-container">
+          <div className="section-header">
+            <h2>Quick Tools</h2>
+          </div>
+          <div className="quick-actions-list">
+            <div className="tool-item" onClick={() => navigate('/history')}>
+              <span className="tool-icon">📊</span>
+              <div className="tool-details">
+                <h4>Performance History</h4>
+                <p>Analyze your progress over time</p>
+              </div>
+              <span className="arrow">→</span>
+            </div>
+
+            <div className="tool-item" onClick={() => navigate('/leaderboard')}>
+              <span className="tool-icon">🌍</span>
+              <div className="tool-details">
+                <h4>Global Leaderboard</h4>
+                <p>See where you stand among others</p>
+              </div>
+              <span className="arrow">→</span>
+            </div>
+
+            <div className="tool-item" onClick={() => navigate('/settings')}>
+              <span className="tool-icon">⚙️</span>
+              <div className="tool-details">
+                <h4>Settings & API Key</h4>
+                <p>Manage your account preferences</p>
+              </div>
+              <span className="arrow">→</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

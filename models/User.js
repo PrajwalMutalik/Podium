@@ -1,38 +1,24 @@
 const mongoose = require('mongoose');
 
 // This is the corrected schema that your middleware is designed to work with.
-// It uses the correct field names: `geminiApiKey`, `apiUsageCount`, and `lastApiUsageDate`.
 const UserSchema = new mongoose.Schema({
   // --- NEW GAMIFICATION FIELDS ---
-  
-  // Points act like experience (XP) for the user.
-  points: {
-    type: Number,
-    default: 0,
-  },
-  
-  // Tracks consecutive days of practice.
-  currentStreak: {
-    type: Number,
-    default: 0,
-  },
-  
-  // Stores the date of the last practice to calculate the streak.
-  lastPracticeDate: {
-    type: Date,
-  },
-  
-  // An array to store the names of earned badges.
-  badges: {
-    type: [String],
-    default: [],
-  },
-  
+  points: { type: Number, default: 0 },
+  currentStreak: { type: Number, default: 0 },
+  lastPracticeDate: { type: Date },
+  badges: { type: [String], default: [] },
   // --- END OF NEW FIELDS ---
-  
+
   name: {
     type: String,
     required: true,
+  },
+  // Added unique username field
+  username: {
+    type: String,
+    unique: true,
+    sparse: true, // Allows null/undefined values for existing users
+    trim: true
   },
   email: {
     type: String,

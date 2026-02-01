@@ -9,11 +9,11 @@ const verifyGeminiApiKey = async (apiKey) => {
   try {
     const genAI = new GoogleGenerativeAI(apiKey.trim());
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    
+
     // Make a simple test request
     const result = await model.generateContent("Test");
     const response = await result.response;
-    
+
     return response.text() ? true : false;
   } catch (error) {
     console.log('API key verification failed:', error.message);
@@ -44,51 +44,91 @@ router.get('/me', auth, async (req, res) => {
 router.post('/update-api-key', auth, async (req, res) => {
   try {
     const { geminiApiKey } = req.body;
-    
+
     // Find user by ID from the token
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ msg: 'User not found' });
     }
-    
+
     // If removing API key (empty or null)
     if (!geminiApiKey || geminiApiKey.trim() === '') {
       console.log('🗑️ Removing API key - reverting to 10 daily limit');
       user.geminiApiKey = '';
       await user.save();
-      
-      return res.json({ 
+
+      return res.json({
         msg: 'API key removed successfully. You now have 10 requests per day.',
         hasApiKey: false,
         verified: false,
         dailyLimit: 10
       });
     }
-    
+
     // If API key is provided, verify it first
     console.log('🔍 Verifying API key before saving...');
-    
+
     const isValidKey = await verifyGeminiApiKey(geminiApiKey);
-    
+
     if (!isValidKey) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         msg: 'Invalid API key. Please check your Gemini API key and try again.',
         error: 'API_KEY_INVALID'
       });
     }
-    
+
     console.log('✅ API key verified successfully');
-    
+
     // Save the verified API key
     user.geminiApiKey = geminiApiKey.trim();
     await user.save();
-    
-    res.json({ 
+
+    res.json({
       msg: 'Valid API key saved successfully! You now have unlimited usage.',
       hasApiKey: true,
       verified: true,
       dailyLimit: 'Unlimited'
     });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   PUT api/user/profile
+// @desc    Update user profile (name, username)
+// @access  Private
+router.put('/profile', auth, async (req, res) => {
+  const { name, username } = req.body;
+
+  // Build profile object
+  const profileFields = {};
+  if (name) profileFields.name = name;
+  if (username) profileFields.username = username.trim();
+
+  try {
+    let user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    // Check if username is taken (if being updated)
+    if (username && username.trim() !== user.username) {
+      let existingUser = await User.findOne({ username: username.trim() });
+      if (existingUser) {
+        return res.status(400).json({ msg: 'Username is already taken. Please choose another.' });
+      }
+    }
+
+    // Update
+    user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: profileFields },
+      { new: true }
+    ).select('-password');
+
+    res.json(user);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

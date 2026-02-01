@@ -21,12 +21,12 @@
 }
 
 .quota-popup-card h2 {
-  color: var(--accent-color);
+  color: var(--accent-primary);
   margin-top: 0;
 }
 
 .quota-popup-card p {
-  color: var(--secondary-text);
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 

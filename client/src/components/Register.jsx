@@ -23,18 +23,19 @@ const Register = () => {
   };
 
   return (
-    <div className="glass-container" style={{ maxWidth: '450px', margin: '4rem auto' }}>
-      <h1>Create Account</h1>
-      <form onSubmit={onSubmit}>
+    <div className="glass-container fade-in" style={{ maxWidth: '450px', margin: '4rem auto', padding: '3rem 2rem' }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Create Account</h1>
+      <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         <input type="text" name="name" value={name} onChange={onChange} placeholder="Name" required />
         <input type="email" name="email" value={email} onChange={onChange} placeholder="Email Address" required />
         <input type="password" name="password" value={password} onChange={onChange} placeholder="Password (min. 6 characters)" minLength="6" required />
-        <button type="submit">Register</button>
+        <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }}>Register</button>
       </form>
-      <p style={{marginTop: '1.5rem', fontSize: '0.9rem'}}>Already have an account? <Link to="/login" style={{color: 'var(--accent-color)'}}>Login</Link></p>
+      <p style={{ marginTop: '2rem', fontSize: '0.95rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+        Already have an account? <Link to="/login" style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>Login</Link>
+      </p>
     </div>
   );
 };
 
 export default Register;
-    

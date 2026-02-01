@@ -12,7 +12,7 @@ router.get('/', auth, async (req, res) => {
     const leaderboard = await User.find()
       .sort({ points: -1 }) // -1 means descending order
       .limit(20) // Limit to the top 20 users
-      .select('name points badges'); // Select only the fields we need
+      .select('name username points badges'); // Select name, username, points, badges
 
     res.json(leaderboard);
   } catch (err) {

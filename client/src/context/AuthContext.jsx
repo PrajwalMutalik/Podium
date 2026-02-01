@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import axios from 'axios';
+import { BASE_URL } from '../config/api';
 
 const AuthContext = createContext();
 
@@ -10,7 +11,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [userApiKey, setUserApiKey] = useState(localStorage.getItem('geminiApiKey'));
-  
+
   // 1. ADDED STATE FOR USER PROFILE
   // This will hold all user data, including points, streak, and badges.
   const [userProfile, setUserProfile] = useState(null);
@@ -24,7 +25,7 @@ export const AuthProvider = ({ children }) => {
       return;
     }
     try {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, ''); // Remove trailing slash if present
+      const baseUrl = BASE_URL;
       const res = await axios.get(`${baseUrl}/api/user/me`, {
         headers: { 'x-auth-token': currentToken },
       });
@@ -36,14 +37,14 @@ export const AuthProvider = ({ children }) => {
         logout();
       }
     }
-  }, []); 
+  }, []);
 
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['x-auth-token'] = token;
       localStorage.setItem('token', token);
       // Fetch the user's profile as soon as the token is available
-      fetchUserProfile(); 
+      fetchUserProfile();
     } else {
       delete axios.defaults.headers.common['x-auth-token'];
       localStorage.removeItem('token');

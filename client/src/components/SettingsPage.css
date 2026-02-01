@@ -1,0 +1,212 @@
+/* SettingsPage.css */
+.settings-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding-bottom: 3rem;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.settings-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.settings-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.settings-header p {
+    color: var(--text-tertiary);
+}
+
+/* === SECTIONS === */
+.settings-section {
+    background: rgba(var(--card-bg-rgb, 255, 255, 255), 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--glass-shadow);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.section-title h2 {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.section-icon {
+    font-size: 1.4rem;
+}
+
+/* === FORMS & INPUTS === */
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.input-field {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--input-border);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.input-helper {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    line-height: 1.4;
+}
+
+/* === TOGGLE CHECKBOX === */
+.checkbox-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.checkbox-wrapper:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.checkbox-input {
+    /* Custom checkbox logic or standard */
+    accent-color: var(--accent-primary);
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-top: 0.1rem;
+    cursor: pointer;
+}
+
+.checkbox-label {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.checkbox-desc {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    margin-top: 0.2rem;
+}
+
+/* === BUTTONS === */
+.btn-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-save {
+    background: var(--accent-primary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-save:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+.btn-remove {
+    background: transparent;
+    color: var(--error);
+    border: 1px solid var(--error);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-remove:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.btn-save:disabled,
+.btn-remove:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* === STATUS CARD === */
+.status-card {
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.status-card.active {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-card.limited {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.status-icon {
+    font-size: 1.5rem;
+}
+
+.status-content h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+.status-content p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}

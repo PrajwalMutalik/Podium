@@ -8,13 +8,18 @@ const QuestionSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['Behavioral', 'Technical', 'System Design'],
+    // Removed strict enum to allow flexibility for 'React', 'JavaScript', etc.
   },
   role: {
     type: String,
     required: true,
-    enum: ['SDE', 'Product Manager', 'Data Analyst'],
+    // Removed strict enum to allow 'Frontend Developer', etc.
   },
+  difficulty: {
+    type: String,
+    enum: ['Easy', 'Medium', 'Hard'],
+    default: 'Medium'
+  }
 });
 
 module.exports = mongoose.model('Question', QuestionSchema);
