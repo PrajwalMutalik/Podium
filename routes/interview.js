@@ -41,9 +41,9 @@ try {
     listModels();
 
 
-    // Fallback to gemini-pro which is widely available
+    // Fallback to gemini-1.5-flash
     model = genAI.getGenerativeModel({
-      model: 'gemini-pro',
+      model: 'gemini-1.5-flash',
       generationConfig: {
         responseMimeType: "application/json",
       },
@@ -54,7 +54,7 @@ try {
         },
       ],
     });
-    console.log("✅ Default Gemini model (gemini-pro) created on startup.");
+    console.log("✅ Default Gemini model (gemini-1.5-flash) created on startup.");
   } else {
     console.warn("⚠️ Warning: GEMINI_API_KEY is not set. Users without a key cannot use this feature.");
   }
@@ -107,6 +107,39 @@ router.get('/check-quota', auth, async (req, res) => {
   } catch (error) {
     console.error('Error in /check-quota route:', error);
     res.status(500).send('Server Error');
+  }
+});
+
+// DEBUG ROUTE: Test the AI connection explicitly
+router.get('/debug-ai', async (req, res) => {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ status: 'error', message: 'GEMINI_API_KEY is not set in environment variables.' });
+    }
+
+    const debugGenAI = new GoogleGenerativeAI(apiKey);
+    const debugModel = debugGenAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    console.log("🔍 Testing Gemini API connection...");
+    const result = await debugModel.generateContent("Test connection. Respond with 'OK'.");
+    const response = await result.response;
+    const text = response.text();
+
+    res.json({
+      status: 'success',
+      message: 'Gemini API is working correctly.',
+      model: 'gemini-1.5-flash',
+      response: text
+    });
+  } catch (error) {
+    console.error("❌ Gemini API Debug Error:", error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to connect to Gemini API.',
+      errorDetails: error.message,
+      tip: "Check if 'Generative Language API' is enabled in Google Cloud Console and if the API Key has IP restrictions."
+    });
   }
 });
 
@@ -163,7 +196,7 @@ router.post('/submit', [auth, upload.single('audio'), usageLimit], async (req, r
       try {
         const customGenAI = new GoogleGenerativeAI(apiKeyToUse.trim());
         aiModel = customGenAI.getGenerativeModel({
-          model: 'gemini-pro',
+          model: 'gemini-1.5-flash',
           generationConfig: {
             responseMimeType: "application/json",
           },
