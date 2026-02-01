@@ -21,7 +21,7 @@ try {
   if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '') {
     genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-1.5-flash-001',
       generationConfig: {
         responseMimeType: "application/json",
       },
@@ -141,7 +141,7 @@ router.post('/submit', [auth, upload.single('audio'), usageLimit], async (req, r
       try {
         const customGenAI = new GoogleGenerativeAI(apiKeyToUse.trim());
         aiModel = customGenAI.getGenerativeModel({
-          model: 'gemini-1.5-flash',
+          model: 'gemini-1.5-flash-001',
           generationConfig: {
             responseMimeType: "application/json",
           },
