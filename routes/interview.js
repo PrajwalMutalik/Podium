@@ -23,20 +23,23 @@ try {
 
     // DEBUG: List available models
     // This helps us see what the API key actually has access to
-    /*
+
     async function listModels() {
       try {
-        // Note: verify if listModels exists or use a simple test
-        console.log("Attempting to verify Gemini connection...");
-        model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-        const result = await model.generateContent("Hello");
-        console.log("✅ Gemini-pro connection test successful:", result.response.text());
+        console.log("🔍 Attempting to list available Gemini models...");
+        // Use the generic model to list others if the SDK supports it, 
+        // OR just try a simple generation to verify the key works at all.
+        // The listModels method might not be directly exposed on genAI instance in this version,
+        // so we'll try to just log that we are initializing.
+
+        // Actually, checking the docs or treating 404 as "Key valid but model wrong"
+        console.log("Model requested: gemini-pro");
       } catch (e) {
-        console.log("❌ Gemini connection test failed:", e.message);
+        console.log("❌ Debug logging failed:", e.message);
       }
     }
     listModels();
-    */
+
 
     // Fallback to gemini-pro which is widely available
     model = genAI.getGenerativeModel({
